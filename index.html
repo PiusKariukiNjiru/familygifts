@@ -934,6 +934,9 @@
                 return {
                     gameState: { ...this.gameState },
                     currentMember: this.currentMember,
+                    deviceId: this.deviceId,
+                    hasDeviceSelected: this.hasDeviceSelected(),
+                    deviceSelection: this.getDeviceSelection(),
                     timestamp: new Date().toISOString(),
                     userAgent: navigator.userAgent,
                     localStorage: !!window.localStorage,
