@@ -1,539 +1,439 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Family Gift Exchange</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-        }
-        #app {
-            margin-bottom: 20px;
-        }
-        .member-buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-        .member-buttons button {
-            padding: 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .selected {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        .current-device {
-            background-color: #90ee90;
-        }
-        .device-indicator {
-            font-size: smaller;
-            font-weight: bold;
-        }
-        #progress-container {
-            background: #eee;
-            height: 10px;
-            margin: 20px 0;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        #progress-bar {
-            background: #4caf50;
-            height: 100%;
-            width: 0;
-            transition: width 0.3s;
-        }
-        #modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .number-selection, .assignment-reveal, .celebration {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            max-width: 400px;
-        }
-        .number-selection .numbers {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-        .number-selection button {
-            padding: 10px;
-            font-size: 18px;
-        }
-        .assignment-reveal h1 {
-            color: #f00;
-        }
-        .celebration .gift-animation {
-            font-size: 50px;
-            animation: spin 2s infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        #error-message {
-            display: none;
-            color: red;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secret Family Gift Exchange</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    /* Custom keyframes for animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bounceIn {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-30px); }
+      60% { transform: translateY(-15px); }
+    }
+    /* Animation utility classes */
+    .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    .animate-fade-in-down { animation: fadeInDown 0.5s ease-out forwards; }
+    .animate-bounce-custom { animation: bounceIn 2s ease infinite; }
+    .animate-pulse-custom { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes pulse {
+      50% { opacity: .5; }
+    }
+    .selection\:bg-yellow-500 *::selection {
+      background-color: #f59e0b;
+      color: #78350f;
+    }
+  </style>
 </head>
-<body>
-    <div id="app">
-        <h1>Secret Family Gift Exchange</h1>
-        <p id="progress">0/8 family members have selected</p>
-        <div id="progress-container">
-            <div id="progress-bar"></div>
-        </div>
-        <div class="member-buttons">
-            <button id="member-mum">Mum</button>
-            <button id="member-dad">Dad</button>
-            <button id="member-sherry">Sherry</button>
-            <button id="member-nancy">Nancy</button>
-            <button id="member-b">B</button>
-            <button id="member-pius">Pius</button>
-            <button id="member-kui">Kui</button>
-            <button id="member-turi">Turi</button>
-        </div>
-    </div>
-    <div id="modal"></div>
-    <div id="error-message"></div>
+<body class="bg-gray-900 text-white antialiased">
+  <div id="root"></div>
 
-    <script>
-        class SecretGiftExchange {
-            constructor() {
-                // Initialize core properties
-                this.familyMembers = ['Mum', 'Dad', 'Sherry', 'Nancy', 'B', 'Pius', 'Kui', 'Turi'];
-                this.storageKey = 'secretGiftExchange';
-                this.deviceKey = 'deviceGiftExchange';
-                this.gameState = null;
-                this.deviceId = null;
-            }
-
-            init() {
-                this.deviceId = this.loadDeviceId();
-                this.gameState = this.loadGameState();
-                this.setupMultiTabSync();
-                this.updateUI();
-
-                // Add event listeners to member buttons
-                this.familyMembers.forEach(member => {
-                    const button = document.getElementById(`member-${member.toLowerCase()}`);
-                    if (button) {
-                        button.addEventListener('click', () => {
-                            this.selectMember(member);
-                        });
-                    }
-                });
-            }
-
-            generateDeviceId() {
-                // Create unique identifier per device/browser
-                const timestamp = Date.now();
-                const random = Math.random().toString(36).substring(2);
-                const userAgent = navigator.userAgent.slice(-10);
-                return `${timestamp}-${random}-${userAgent}`;
-            }
-
-            generateSecretMapping() {
-                // Create random 1-8 to family member mapping
-                const shuffled = [...this.familyMembers];
-                
-                // Fisher-Yates shuffle for true randomness
-                for (let i = shuffled.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-                }
-                
-                // Map numbers 1-8 to shuffled family members
-                const mapping = {};
-                for (let i = 0; i < 8; i++) {
-                    mapping[i + 1] = shuffled[i];
-                }
-                
-                return mapping;
-            }
-
-            canDeviceSelect(deviceId, memberName) {
-                // Check if device already used
-                if (this.gameState.deviceSelections[deviceId]) {
-                    const previousSelection = this.gameState.deviceSelections[deviceId];
-                    return {
-                        canSelect: false,
-                        reason: 'DEVICE_USED',
-                        previousMember: previousSelection
-                    };
-                }
-                
-                // Check if member already selected by someone else
-                if (this.gameState.selections[memberName]) {
-                    return {
-                        canSelect: false,
-                        reason: 'MEMBER_TAKEN',
-                        takenBy: 'another device'
-                    };
-                }
-                
-                return { canSelect: true };
-            }
-
-            selectMember(memberName) {
-                // 1. Validate device can select
-                const validation = this.canDeviceSelect(this.deviceId, memberName);
-                if (!validation.canSelect) {
-                    this.showError(validation);
-                    return false;
-                }
-                
-                // 2. Mark member as selected
-                this.gameState.selections[memberName] = {
-                    selected: true,
-                    timestamp: Date.now(),
-                    deviceId: this.deviceId
-                };
-                
-                // 3. Record device selection
-                this.gameState.deviceSelections[this.deviceId] = memberName;
-                
-                // 4. Update UI and save state
-                this.saveGameState();
-                this.updateUI();
-                this.showNumberSelection(memberName);
-                
-                return true;
-            }
-
-            selectNumber(memberName, number) {
-                // Get recipient from secret mapping
-                const recipient = this.gameState.secretMapping[number];
-                
-                // Mark number as used
-                this.gameState.usedNumbers = this.gameState.usedNumbers || [];
-                this.gameState.usedNumbers.push(number);
-                
-                // Show assignment temporarily (10 seconds)
-                this.showAssignment(memberName, recipient, number);
-                
-                // Save final state
-                this.saveGameState();
-                
-                // Check if game complete
-                this.checkCompletion();
-            }
-
-            saveGameState() {
-                try {
-                    const dataToSave = {
-                        ...this.gameState,
-                        timestamp: Date.now(),
-                        version: '1.0'
-                    };
-                    localStorage.setItem(this.storageKey, JSON.stringify(dataToSave));
-                    return true;
-                } catch (error) {
-                    console.error('Failed to save game state:', error);
-                    this.showError({ reason: 'SAVE_ERROR' });
-                    return false;
-                }
-            }
-
-            loadGameState() {
-                try {
-                    const saved = localStorage.getItem(this.storageKey);
-                    if (!saved) return this.createNewGame();
-                    
-                    const parsed = JSON.parse(saved);
-                    
-                    // Validate data structure
-                    if (!this.validateGameState(parsed)) {
-                        return this.createNewGame();
-                    }
-                    
-                    return parsed;
-                } catch (error) {
-                    console.error('Failed to load game state:', error);
-                    return this.createNewGame();
-                }
-            }
-
-            loadDeviceId() {
-                let deviceId = localStorage.getItem(this.deviceKey);
-                if (!deviceId) {
-                    deviceId = this.generateDeviceId();
-                    localStorage.setItem(this.deviceKey, deviceId);
-                }
-                return deviceId;
-            }
-
-            setupMultiTabSync() {
-                // Listen for localStorage changes from other tabs
-                window.addEventListener('storage', (e) => {
-                    if (e.key === this.storageKey) {
-                        // Another tab updated the game state
-                        this.gameState = this.loadGameState();
-                        this.updateUI();
-                        this.showUpdateNotification();
-                    }
-                });
-                
-                // Handle page visibility changes
-                document.addEventListener('visibilitychange', () => {
-                    if (!document.hidden) {
-                        this.gameState = this.loadGameState();
-                        this.updateUI();
-                    }
-                });
-            }
-
-            updateMemberButtons() {
-                this.familyMembers.forEach(member => {
-                    const button = document.getElementById(`member-${member.toLowerCase()}`);
-                    const isSelected = this.gameState.selections[member];
-                    const isCurrentDevice = this.gameState.deviceSelections[this.deviceId] === member;
-                    
-                    // Update button appearance based on state
-                    if (isSelected) {
-                        button.disabled = true;
-                        button.classList.add('selected');
-                        
-                        if (isCurrentDevice) {
-                            button.classList.add('current-device');
-                            button.innerHTML = `${member} <span class="device-indicator">(YOU)</span>`;
-                        }
-                    } else {
-                        button.disabled = false;
-                        button.classList.remove('selected', 'current-device');
-                        button.innerHTML = member;
-                    }
-                });
-            }
-
-            updateProgress() {
-                const selectedCount = Object.keys(this.gameState.selections).length;
-                const total = this.familyMembers.length;
-                
-                const progressElement = document.getElementById('progress');
-                progressElement.textContent = `${selectedCount}/${total} family members have selected`;
-                
-                // Update progress bar
-                const percentage = (selectedCount / total) * 100;
-                document.getElementById('progress-bar').style.width = `${percentage}%`;
-            }
-
-            showAssignment(giver, recipient, number) {
-                // Create assignment display
-                const assignmentHtml = `
-                    <div class="assignment-reveal">
-                        <h2>🎁 Your Secret Assignment</h2>
-                        <p><strong>${this.escapeHtml(giver)}</strong>, you will give a gift to:</p>
-                        <h1 class="recipient">${this.escapeHtml(recipient)}</h1>
-                        <p class="number-info">You selected number ${number}</p>
-                        <div class="countdown">This will disappear in <span id="countdown">10</span> seconds</div>
-                    </div>
-                `;
-                
-                // Show with countdown
-                this.showModal(assignmentHtml);
-                this.startCountdown(10, () => {
-                    this.hideModal();
-                    this.returnToMainScreen();
-                });
-            }
-
-            checkCompletion() {
-                const selectedCount = Object.keys(this.gameState.selections).length;
-                
-                if (selectedCount === this.familyMembers.length) {
-                    this.gameState.completed = true;
-                    this.gameState.completedAt = Date.now();
-                    this.saveGameState();
-                    this.showCompletionCelebration();
-                }
-            }
-
-            showCompletionCelebration() {
-                const celebrationHtml = `
-                    <div class="celebration">
-                        <h1>🎉 All Done! 🎉</h1>
-                        <p>Everyone has selected their secret assignments!</p>
-                        <p>Your December gift exchange is ready!</p>
-                        <div class="gift-animation">🎁✨</div>
-                    </div>
-                `;
-                this.showModal(celebrationHtml);
-                // Note: This modal stays open; you can add a close button if needed.
-            }
-
-            showError(validation) {
-                let message = '';
-                
-                switch (validation.reason) {
-                    case 'DEVICE_USED':
-                        message = `🚫 This device has already been used! ${this.escapeHtml(validation.previousMember)} was already selected from this device.`;
-                        break;
-                    case 'MEMBER_TAKEN':
-                        message = `🚫 This family member has already been selected by someone else! Choose a different family member.`;
-                        break;
-                    case 'SAVE_ERROR':
-                        message = `🚫 Failed to save your selection. Please try again.`;
-                        break;
-                    default:
-                        message = `🚫 Something went wrong. Please try again.`;
-                }
-                
-                this.displayErrorMessage(message);
-            }
-
-            validateGameState(state) {
-                // Check required properties
-                if (!state.secretMapping || !state.selections || !state.deviceSelections) {
-                    return false;
-                }
-                
-                // Validate secret mapping
-                const mappingNumbers = Object.keys(state.secretMapping).map(Number).sort();
-                const expectedNumbers = [1, 2, 3, 4, 5, 6, 7, 8];
-                if (JSON.stringify(mappingNumbers) !== JSON.stringify(expectedNumbers)) {
-                    return false;
-                }
-                
-                // Validate family members in mapping
-                const mappingMembers = Object.values(state.secretMapping);
-                for (const member of mappingMembers) {
-                    if (!this.familyMembers.includes(member)) {
-                        return false;
-                    }
-                }
-
-                // Ensure unique members
-                const uniqueMembers = new Set(mappingMembers);
-                if (uniqueMembers.size !== this.familyMembers.length) {
-                    return false;
-                }
-                
-                return true;
-            }
-
-            escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-
-            sanitizeInput(input) {
-                if (typeof input !== 'string') return '';
-                return this.escapeHtml(input.trim());
-            }
-
-            createNewGame() {
-                const mapping = this.generateSecretMapping();
-                const state = {
-                    secretMapping: mapping,
-                    selections: {},
-                    deviceSelections: {},
-                    usedNumbers: [],
-                    completed: false,
-                    version: '1.0'
-                };
-                this.gameState = state;
-                this.saveGameState();
-                return state;
-            }
-
-            showNumberSelection(memberName) {
-                const used = this.gameState.usedNumbers || [];
-                let html = `<div class="number-selection">
-                    <h2>${this.escapeHtml(memberName)}, Select Your Number</h2>
-                    <div class="numbers">`;
-                for (let i = 1; i <= 8; i++) {
-                    if (!used.includes(i)) {
-                        html += `<button class="number-btn" data-number="${i}">${i}</button>`;
-                    } else {
-                        html += `<button disabled>${i}</button>`;
-                    }
-                }
-                html += '</div></div>';
-                this.showModal(html);
-
-                // Add event listeners to number buttons
-                document.querySelectorAll('.number-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const num = parseInt(btn.dataset.number);
-                        this.selectNumber(memberName, num);
-                    });
-                });
-            }
-
-            showModal(html) {
-                const modal = document.getElementById('modal');
-                modal.innerHTML = html;
-                modal.style.display = 'flex';
-            }
-
-            hideModal() {
-                document.getElementById('modal').style.display = 'none';
-            }
-
-            startCountdown(seconds, callback) {
-                let count = seconds;
-                const span = document.getElementById('countdown');
-                if (!span) return callback();
-                span.textContent = count;
-                const interval = setInterval(() => {
-                    count--;
-                    span.textContent = count;
-                    if (count <= 0) {
-                        clearInterval(interval);
-                        callback();
-                    }
-                }, 1000);
-            }
-
-            displayErrorMessage(msg) {
-                const err = document.getElementById('error-message');
-                err.innerHTML = msg;
-                err.style.display = 'block';
-                setTimeout(() => {
-                    err.style.display = 'none';
-                }, 5000);
-            }
-
-            returnToMainScreen() {
-                this.hideModal();
-                this.updateUI();
-            }
-
-            showUpdateNotification() {
-                // Simple notification
-                this.displayErrorMessage('Game state updated from another tab/window!');
-            }
-
-            updateUI() {
-                this.updateMemberButtons();
-                this.updateProgress();
-            }
+  <script type="module">
+    class SecretGiftExchangeApp {
+      constructor(rootSelector) {
+        this.rootElement = document.querySelector(rootSelector);
+        if (!this.rootElement) {
+          throw new Error('Root element not found');
         }
 
-        const app = new SecretGiftExchange();
-        app.init();
-    </script>
+        // Constants
+        this.FAMILY_MEMBERS = ['Mum', 'Dad', 'Sherry', 'Nancy', 'B', 'Pius', 'Kui', 'Turi'];
+        this.STORAGE_KEY = 'secretGiftExchange';
+        this.DEVICE_KEY = 'deviceGiftExchange';
+
+        // State
+        this.gameState = null;
+        this.deviceId = null;
+        this.currentView = 'loading';
+        this.selectedMember = null;
+        this.assignment = null;
+        this.error = null;
+      }
+
+      // --- INITIALIZATION & SYNC ---
+      init() {
+        this.loadDeviceId();
+        this.loadGameState();
+        this.currentView = 'members';
+        
+        this.setupEventListeners();
+        this.render();
+      }
+      
+      loadDeviceId() {
+        let devId = localStorage.getItem(this.DEVICE_KEY);
+        if (!devId) {
+          devId = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
+          localStorage.setItem(this.DEVICE_KEY, devId);
+        }
+        this.deviceId = devId;
+      }
+
+      loadGameState() {
+        try {
+          const savedState = localStorage.getItem(this.STORAGE_KEY);
+          this.gameState = savedState ? JSON.parse(savedState) : this.createNewGame();
+        } catch (e) {
+          console.error("Failed to load or parse game state, creating new game.", e);
+          this.gameState = this.createNewGame();
+        }
+      }
+      
+      setupEventListeners() {
+        // Multi-tab sync
+        window.addEventListener('storage', (e) => {
+          if (e.key === this.STORAGE_KEY && e.newValue) {
+            this.gameState = JSON.parse(e.newValue);
+            this.render();
+          }
+        });
+
+        // UI Interactions using event delegation
+        this.rootElement.addEventListener('click', (e) => {
+          const button = e.target.closest('button');
+          if (!button) return;
+
+          const { action, value } = button.dataset;
+
+          switch (action) {
+            case 'select-member':
+              this.handleSelectMember(value);
+              break;
+            case 'select-number':
+              this.handleSelectNumber(parseInt(value, 10));
+              break;
+            case 'back':
+              this.handleBackToMembers();
+              break;
+          }
+        });
+      }
+
+      // --- STATE MANAGEMENT & GAME LOGIC ---
+      saveGameState(state) {
+        try {
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
+          this.gameState = state;
+        } catch (e) {
+          console.error('Failed to save game state:', e);
+          this.showError('Failed to save your selection. Please try again.');
+        }
+      }
+
+      generateSecretMapping() {
+        const shuffled = [...this.FAMILY_MEMBERS];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        const mapping = {};
+        shuffled.forEach((member, index) => {
+          mapping[index + 1] = member;
+        });
+        return mapping;
+      }
+
+      createNewGame() {
+        const newGameState = {
+          secretMapping: this.generateSecretMapping(),
+          selections: {},
+          deviceSelections: {},
+          usedNumbers: [],
+          completed: false,
+          version: '1.0',
+        };
+        this.saveGameState(newGameState);
+        return newGameState;
+      }
+      
+      // --- ACTION HANDLERS ---
+      handleSelectMember(memberName) {
+        if (this.gameState.deviceSelections[this.deviceId]) {
+          const previousSelection = this.gameState.deviceSelections[this.deviceId];
+          this.showError(`This device has already been used to select ${previousSelection}.`);
+          return;
+        }
+        if (this.gameState.selections[memberName]) {
+          this.showError(`${memberName} has already been selected by someone else.`);
+          return;
+        }
+
+        const updatedState = {
+          ...this.gameState,
+          selections: {
+            ...this.gameState.selections,
+            [memberName]: { selected: true, timestamp: Date.now(), deviceId: this.deviceId }
+          },
+          deviceSelections: {
+            ...this.gameState.deviceSelections,
+            [this.deviceId]: memberName
+          }
+        };
+        
+        this.saveGameState(updatedState);
+        this.selectedMember = memberName;
+        this.currentView = 'numbers';
+        this.render();
+      }
+
+      handleSelectNumber(number) {
+        const recipient = this.gameState.secretMapping[number];
+        let updatedState = {
+          ...this.gameState,
+          usedNumbers: [...this.gameState.usedNumbers, number]
+        };
+
+        const selectedCount = Object.keys(updatedState.selections).length;
+        if (selectedCount === this.FAMILY_MEMBERS.length) {
+          updatedState = { ...updatedState, completed: true, completedAt: Date.now() };
+        }
+
+        this.saveGameState(updatedState);
+        this.assignment = { giver: this.selectedMember, recipient };
+        this.render();
+      }
+
+      handleCloseAssignmentModal() {
+        this.assignment = null;
+        this.selectedMember = null;
+        this.currentView = 'members';
+        this.render();
+      }
+      
+      handleBackToMembers() {
+        const deviceSelection = this.gameState.deviceSelections[this.deviceId];
+        if (deviceSelection) {
+            const { [deviceSelection]: removedSelection, ...remainingSelections } = this.gameState.selections;
+            const { [this.deviceId]: removedDevice, ...remainingDevices } = this.gameState.deviceSelections;
+            const updatedState = {
+                ...this.gameState,
+                selections: remainingSelections,
+                deviceSelections: remainingDevices,
+            };
+            this.saveGameState(updatedState);
+        }
+        this.selectedMember = null;
+        this.currentView = 'members';
+        this.render();
+      }
+
+      // --- UI RENDERING ---
+      
+      showError(message) {
+        // Remove existing error first
+        const existingError = document.getElementById('error-alert');
+        if(existingError) existingError.remove();
+
+        const errorHtml = `
+          <div id="error-alert" class="fixed top-5 right-5 bg-red-600 text-white p-4 rounded-lg shadow-lg max-w-sm z-50 animate-fade-in-down">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-3 text-xl"></i>
+                <p>${message}</p>
+              </div>
+              <button id="close-error-btn" class="ml-4 text-red-100 hover:text-white">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', errorHtml);
+        const closeBtn = document.getElementById('close-error-btn');
+        const alertDiv = document.getElementById('error-alert');
+        const close = () => alertDiv?.remove();
+        closeBtn?.addEventListener('click', close);
+        setTimeout(close, 5000);
+      }
+      
+      renderProgressBar() {
+        const selectedCount = Object.keys(this.gameState.selections).length;
+        const total = this.FAMILY_MEMBERS.length;
+        const percentage = total > 0 ? (selectedCount / total) * 100 : 0;
+        return `
+          <div class="w-full max-w-2xl mx-auto my-6">
+            <p class="text-center text-lg text-gray-300 mb-2">
+              ${selectedCount}/${total} family members have made their selection
+            </p>
+            <div class="w-full bg-gray-700 rounded-full h-4 overflow-hidden">
+              <div
+                class="bg-green-500 h-4 rounded-full transition-all duration-500 ease-out"
+                style="width: ${percentage}%;"
+              ></div>
+            </div>
+          </div>
+        `;
+      }
+
+      renderMemberButtons() {
+        return this.FAMILY_MEMBERS.map(member => {
+          const isSelected = !!this.gameState.selections[member];
+          const isCurrentDevice = this.gameState.deviceSelections[this.deviceId] === member;
+          
+          let dynamicClasses = "";
+          if (isSelected) {
+            dynamicClasses = isCurrentDevice 
+              ? "bg-yellow-500 text-gray-900 cursor-not-allowed ring-yellow-300" 
+              : "bg-gray-600 text-gray-400 cursor-not-allowed";
+          } else {
+            dynamicClasses = "bg-indigo-600 text-white hover:bg-indigo-500 hover:scale-105 active:scale-100 ring-indigo-400";
+          }
+
+          return `
+            <button
+              data-action="select-member"
+              data-value="${member}"
+              ${isSelected ? 'disabled' : ''}
+              class="w-full text-lg font-bold py-4 px-6 rounded-lg shadow-md transition-all duration-300 ease-in-out transform focus:outline-none focus:ring-4 ${dynamicClasses}"
+            >
+              ${member}
+              ${isCurrentDevice ? '<span class="block text-sm font-normal">(YOUR SELECTION)</span>' : ''}
+            </button>
+          `;
+        }).join('');
+      }
+
+      renderNumberSelector() {
+        const numbers = Array.from({ length: 8 }, (_, i) => i + 1);
+        return `
+          <div class="w-full max-w-2xl mx-auto p-6 bg-gray-800 rounded-2xl shadow-2xl text-center animate-fade-in relative">
+              <button data-action="back" class="absolute top-4 left-4 text-gray-400 hover:text-white transition">
+                  <i class="fas fa-arrow-left mr-2"></i> Back
+              </button>
+              <h2 class="text-3xl font-bold mb-2">Welcome, <span class="text-yellow-400">${this.selectedMember}</span>!</h2>
+              <p class="text-lg text-gray-300 mb-6">Pick a secret number to find out who you're getting a gift for.</p>
+              <div class="grid grid-cols-4 gap-4">
+                  ${numbers.map(num => {
+                    const isUsed = this.gameState.usedNumbers.includes(num);
+                    return `
+                      <button
+                        data-action="select-number"
+                        data-value="${num}"
+                        ${isUsed ? 'disabled' : ''}
+                        class="p-6 text-2xl font-bold rounded-lg transition-all duration-300 ease-in-out transform focus:outline-none focus:ring-4 ${
+                          isUsed 
+                          ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
+                          : 'bg-green-600 text-white hover:bg-green-500 hover:scale-110 active:scale-100 ring-green-400'
+                        }"
+                      >
+                        ${num}
+                      </button>
+                    `;
+                  }).join('')}
+              </div>
+          </div>
+        `;
+      }
+      
+      renderAssignmentModal() {
+        const modalHtml = `
+          <div id="assignment-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 animate-fade-in">
+            <div class="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl shadow-2xl text-center max-w-lg w-full border border-yellow-500 transform scale-100 transition-transform duration-300">
+              <h2 class="text-3xl font-bold text-yellow-400 mb-4">🎁 Your Secret Assignment 🎁</h2>
+              <p class="text-xl text-gray-200 mb-2">
+                <strong>${this.assignment.giver}</strong>, you will be giving a gift to...
+              </p>
+              <h1 class="text-5xl font-extrabold text-white my-6 bg-indigo-600 p-4 rounded-lg">
+                ${this.assignment.recipient}
+              </h1>
+              <p class="text-gray-400">Remember, it's a secret! 😉</p>
+              <div class="mt-8">
+                  <p class="text-sm text-gray-500">This will disappear in...</p>
+                  <div id="countdown" class="text-4xl font-mono text-yellow-400">10</div>
+              </div>
+            </div>
+          </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        let countdown = 10;
+        const countdownElement = document.getElementById('countdown');
+        const interval = setInterval(() => {
+            countdown--;
+            if (countdownElement) {
+                countdownElement.textContent = countdown;
+            }
+            if (countdown <= 0) {
+                clearInterval(interval);
+                document.getElementById('assignment-modal')?.remove();
+                this.handleCloseAssignmentModal();
+            }
+        }, 1000);
+      }
+
+      renderCompletionModal() {
+        return `
+          <div class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 animate-fade-in">
+            <div class="bg-gradient-to-br from-green-800 to-green-900 p-8 rounded-2xl shadow-2xl text-center max-w-lg w-full border border-green-400">
+              <div class="text-6xl mb-4 animate-bounce-custom">🎉</div>
+              <h1 class="text-4xl font-bold text-white mb-4">All Done!</h1>
+              <p class="text-xl text-green-200 mb-6">
+                Everyone has selected their secret assignments! Your December gift exchange is ready to go!
+              </p>
+              <div class="text-5xl animate-pulse-custom">🎁✨</div>
+            </div>
+          </div>
+        `;
+      }
+
+      render() {
+        if (this.currentView === 'loading' || !this.gameState) {
+            this.rootElement.innerHTML = `<div class="flex items-center justify-center min-h-screen"><i class="fas fa-spinner fa-spin text-4xl text-white"></i></div>`;
+            return;
+        }
+
+        if (this.gameState.completed) {
+            this.rootElement.innerHTML = this.renderCompletionModal();
+            return;
+        }
+        
+        // Handle modals separately as overlays
+        if (this.assignment && !document.getElementById('assignment-modal')) {
+           this.renderAssignmentModal();
+        }
+
+        let viewHtml = '';
+        if (this.currentView === 'members') {
+            viewHtml = `
+              <div class="w-full max-w-2xl animate-fade-in">
+                  ${this.renderProgressBar()}
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                      ${this.renderMemberButtons()}
+                  </div>
+              </div>
+            `;
+        } else if (this.currentView === 'numbers') {
+            viewHtml = this.renderNumberSelector();
+        }
+
+        this.rootElement.innerHTML = `
+          <div class="min-h-screen flex flex-col items-center justify-center p-4 selection:bg-yellow-500">
+              <div class="text-center mb-8">
+                  <h1 class="text-5xl font-extrabold text-white">
+                      Secret <span class="text-yellow-400">Family</span> Gift Exchange
+                  </h1>
+                  <p class="text-gray-400 mt-2 text-lg">Who will you get this year? 🎁</p>
+              </div>
+              ${viewHtml}
+          </div>
+        `;
+      }
+    }
+
+    // --- App Entry Point ---
+    document.addEventListener('DOMContentLoaded', () => {
+      const app = new SecretGiftExchangeApp('#root');
+      app.init();
+    });
+  </script>
 </body>
 </html>
