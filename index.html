@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Family Gift Exchange 🎁</title>
+    <title>🎁 Secret Family Gift Exchange</title>
     <style>
         * {
             margin: 0;
@@ -16,6 +16,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            color: #333;
         }
 
         .container {
@@ -29,151 +30,133 @@
             border: 1px solid rgba(255, 255, 255, 0.18);
         }
 
-        .header {
+        h1 {
             text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .title {
-            font-size: 2.5rem;
             color: white;
+            font-size: 2.5rem;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .subtitle {
+            text-align: center;
             color: rgba(255, 255, 255, 0.9);
             font-size: 1.1rem;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-section {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
         }
 
         .progress {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-            padding: 10px 20px;
-            display: inline-block;
+            font-size: 1.3rem;
             color: white;
             font-weight: bold;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+        }
+
+        .completed-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .completed-badge {
+            background: rgba(34, 197, 94, 0.8);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .instructions {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.2);
             padding: 20px;
+            border-radius: 15px;
             margin-bottom: 30px;
             color: white;
+            line-height: 1.6;
         }
 
         .instructions h3 {
             margin-bottom: 15px;
-            color: #ffd700;
+            color: #ffeb3b;
         }
 
         .instructions ol {
             margin-left: 20px;
-            line-height: 1.6;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
         }
 
         .privacy-notice {
-            background: rgba(255, 193, 7, 0.2);
-            border: 2px solid rgba(255, 193, 7, 0.5);
-            border-radius: 10px;
+            background: rgba(156, 39, 176, 0.3);
             padding: 15px;
-            margin: 20px 0;
+            border-radius: 10px;
             color: white;
-            text-align: center;
-            font-weight: bold;
+            margin-bottom: 30px;
+            border-left: 4px solid #ffeb3b;
         }
 
-        .limitation-notice {
-            background: rgba(156, 39, 176, 0.2);
-            border: 2px solid rgba(156, 39, 176, 0.5);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
-            color: white;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-
-        .device-notice {
-            background: rgba(244, 67, 54, 0.2);
-            border: 2px solid rgba(244, 67, 54, 0.5);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
-            color: white;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .section {
+        .family-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
             margin-bottom: 30px;
         }
 
-        .section h3 {
+        .family-member {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid transparent;
+            padding: 20px;
+            border-radius: 15px;
             color: white;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 1.3rem;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: bold;
+            font-size: 1.1rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
             position: relative;
         }
 
-        .btn:hover:not(:disabled) {
+        .family-member:hover:not(.completed):not(.selected) {
+            background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .btn:active:not(:disabled) {
-            transform: translateY(0);
+        .family-member.selected {
+            background: rgba(255, 87, 34, 0.8);
+            border-color: #ff5722;
+            transform: scale(1.05);
         }
 
-        .name-btn {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
+        .family-member.completed {
+            background: rgba(34, 197, 94, 0.6);
+            border-color: #22c55e;
+            cursor: default;
         }
 
-        .name-btn.selected {
-            background: linear-gradient(45deg, #FF6B35, #F7931E);
-            animation: pulse 2s infinite;
-        }
-
-        .name-btn.completed {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
-            position: relative;
-        }
-
-        .name-btn.completed::after {
+        .family-member.completed::after {
             content: '✓';
             position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #4CAF50;
+            top: -5px;
+            right: -5px;
+            background: #22c55e;
             color: white;
-            font-size: 1.2rem;
-            width: 24px;
-            height: 24px;
+            width: 25px;
+            height: 25px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -182,65 +165,17 @@
             border: 2px solid white;
         }
 
-        .name-btn:disabled {
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .number-btn {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-        }
-
-        .number-btn:disabled {
-            background: linear-gradient(45deg, #9E9E9E, #757575);
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .number-btn.own {
-            background: linear-gradient(45deg, #FF9800, #F57C00);
-            position: relative;
-        }
-
-        .number-btn.own::after {
-            content: 'YOU';
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #FF5722;
-            color: white;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-weight: bold;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4); }
-            50% { box-shadow: 0 4px 25px rgba(255, 107, 53, 0.8); }
-            100% { box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4); }
-        }
-
-        .hidden {
+        .numbers-section {
             display: none;
-        }
-
-        .result {
-            background: rgba(76, 175, 80, 0.2);
-            border: 2px solid rgba(76, 175, 80, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+            padding: 25px;
             border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            color: white;
-            font-size: 1.2rem;
-            margin-top: 20px;
-            animation: slideIn 0.5s ease-out;
+            margin-bottom: 30px;
         }
 
-        .result.error {
-            background: rgba(244, 67, 54, 0.2);
-            border-color: rgba(244, 67, 54, 0.5);
+        .numbers-section.visible {
+            display: block;
+            animation: slideIn 0.5s ease-out;
         }
 
         @keyframes slideIn {
@@ -254,413 +189,562 @@
             }
         }
 
-        .celebration {
-            text-align: center;
-            padding: 40px;
+        .numbers-title {
             color: white;
-        }
-
-        .celebration h2 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            color: #FFD700;
-        }
-
-        .celebration p {
             font-size: 1.3rem;
             margin-bottom: 20px;
+            text-align: center;
         }
 
-        .refresh-btn {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .number-btn {
+            background: rgba(76, 175, 80, 0.8);
+            border: 2px solid #4caf50;
             color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 20px;
+            border-radius: 15px;
             cursor: pointer;
-            margin: 10px;
             transition: all 0.3s ease;
         }
 
-        .refresh-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+        .number-btn:hover:not(.disabled):not(.own) {
+            background: rgba(76, 175, 80, 1);
+            transform: scale(1.1);
         }
 
-        @media (max-width: 600px) {
+        .number-btn.disabled {
+            background: rgba(158, 158, 158, 0.6);
+            border-color: #9e9e9e;
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .number-btn.own {
+            background: rgba(255, 152, 0, 0.8);
+            border-color: #ff9800;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .number-btn.own::after {
+            content: 'YOU';
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: #ff9800;
+            font-weight: bold;
+        }
+
+        .assignment-result {
+            display: none;
+            background: rgba(76, 175, 80, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        .assignment-result.visible {
+            display: block;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .device-blocked {
+            display: none;
+            background: rgba(244, 67, 54, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .device-blocked.visible {
+            display: block;
+        }
+
+        .celebration {
+            display: none;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7);
+            background-size: 300% 300%;
+            animation: gradient 3s ease infinite;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+
+        .celebration.visible {
+            display: block;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.1rem;
+            padding: 20px;
+        }
+
+        .error {
+            background: rgba(244, 67, 54, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .connected-status {
+            background: rgba(76, 175, 80, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .reset-button {
+            background: rgba(244, 67, 54, 0.8);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .reset-button:hover {
+            background: rgba(244, 67, 54, 1);
+        }
+
+        @media (max-width: 768px) {
             .container {
                 padding: 20px;
-                margin: 10px;
             }
             
-            .title {
+            h1 {
                 font-size: 2rem;
             }
             
-            .grid {
+            .numbers-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
             }
             
-            .btn {
-                padding: 12px;
-                font-size: 0.9rem;
+            .family-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1 class="title">🎁 Secret Gift Exchange 🤫</h1>
-            <p class="subtitle">Family Christmas Gift Exchange 2024</p>
-            <div class="progress" id="progress">Completed: 0/8</div>
-            <button class="refresh-btn" onclick="refreshState()">🔄 Refresh Status</button>
+        <h1>🎁 Secret Family Gift Exchange 🤫</h1>
+        <p class="subtitle">December 2025 • Real-Time Synchronized</p>
+
+        <div id="loadingSection" class="loading">
+            <div>🔄 Connecting to Firebase...</div>
         </div>
 
-        <div id="main-content">
+        <div id="errorSection" class="error" style="display: none;">
+            <div id="errorMessage"></div>
+        </div>
+
+        <div id="connectedStatus" class="connected-status" style="display: none;">
+            ✅ Connected to Firebase! Real-time sync active.
+        </div>
+
+        <div id="gameContainer" style="display: none;">
+            <!-- Status Section -->
+            <div class="status-section">
+                <div class="progress" id="progressCounter">Completed: 0/8</div>
+                <div class="completed-list" id="completedList"></div>
+                <button id="resetButton" class="reset-button" style="display: none;" onclick="resetGame()">
+                    🔄 Reset Game (Admin)
+                </button>
+            </div>
+
+            <!-- Instructions -->
             <div class="instructions">
-                <h3>📋 How It Works:</h3>
+                <h3>🎯 How It Works</h3>
                 <ol>
-                    <li><strong>Click your name</strong> from the family members below</li>
-                    <li><strong>Choose a number</strong> from the available options (1-8)</li>
-                    <li><strong>See who you're giving to</strong> - keep it secret! 🤐</li>
+                    <li><strong>Select Your Name:</strong> Click your name from the family grid below</li>
+                    <li><strong>Pick a Number:</strong> Choose from available numbers (1-8). Your own number is blocked!</li>
+                    <li><strong>Secret Assignment:</strong> See who you're buying a gift for (keep it secret! 🤫)</li>
                 </ol>
             </div>
 
             <div class="privacy-notice">
-                ⚠️ Numbers are randomly shuffled! You can't predict who you'll get!
+                <strong>🔒 Privacy Guaranteed:</strong> The numbers are secretly shuffled! Only you will see your assignment. Once you choose, there's no going back!
             </div>
 
-            <div class="limitation-notice">
-                📱 <strong>Important:</strong> For true cross-device sync, this app would need a backend database. 
-                Currently, completed selections are saved locally. Click "Refresh Status" to check for updates, 
-                or coordinate with family members to avoid conflicts.
+            <!-- Device Already Used Message -->
+            <div id="deviceBlocked" class="device-blocked">
+                <h3>🚫 Device Already Used</h3>
+                <p>This device has already been used to make a selection. Each device can only be used once to ensure fairness.</p>
+                <p>Please use a different device to make your selection.</p>
             </div>
 
-            <div class="device-notice" id="device-notice" style="display: none;">
-                🚫 This browser has already been used to make a selection. Each browser session can only be used once to prevent conflicts.
+            <!-- Family Members Grid -->
+            <div id="familyGrid" class="family-grid">
+                <!-- Family members will be populated by JavaScript -->
             </div>
 
-            <div class="section">
-                <h3>👨‍👩‍👧‍👦 Select Your Name</h3>
-                <div class="grid" id="names-grid">
-                    <button class="btn name-btn" data-name="Mum">Mum</button>
-                    <button class="btn name-btn" data-name="Dad">Dad</button>
-                    <button class="btn name-btn" data-name="Sherry">Sherry</button>
-                    <button class="btn name-btn" data-name="Nancy">Nancy</button>
-                    <button class="btn name-btn" data-name="B">B</button>
-                    <button class="btn name-btn" data-name="Pius">Pius</button>
-                    <button class="btn name-btn" data-name="Kui">Kui</button>
-                    <button class="btn name-btn" data-name="Turi">Turi</button>
+            <!-- Numbers Selection -->
+            <div id="numbersSection" class="numbers-section">
+                <h3 class="numbers-title">Choose Your Secret Number:</h3>
+                <div class="numbers-grid" id="numbersGrid">
+                    <!-- Numbers will be populated by JavaScript -->
                 </div>
             </div>
 
-            <div class="section hidden" id="numbers-section">
-                <h3>🔢 Choose Your Secret Number</h3>
-                <div class="grid" id="numbers-grid">
-                    <button class="btn number-btn" data-number="1">1</button>
-                    <button class="btn number-btn" data-number="2">2</button>
-                    <button class="btn number-btn" data-number="3">3</button>
-                    <button class="btn number-btn" data-number="4">4</button>
-                    <button class="btn number-btn" data-number="5">5</button>
-                    <button class="btn number-btn" data-number="6">6</button>
-                    <button class="btn number-btn" data-number="7">7</button>
-                    <button class="btn number-btn" data-number="8">8</button>
-                </div>
+            <!-- Assignment Result -->
+            <div id="assignmentResult" class="assignment-result">
+                <h3>🎯 Your Secret Assignment:</h3>
+                <p id="assignmentText"></p>
+                <p style="margin-top: 15px; font-size: 0.9rem;">Keep this secret! This message will disappear when you leave the page.</p>
             </div>
 
-            <div id="result-container"></div>
-        </div>
-
-        <div id="celebration" class="celebration hidden">
-            <h2>🎉 Everyone's Done! 🎉</h2>
-            <p>All 8 family members have made their selections!</p>
-            <p>Time to start shopping for your secret person! 🛍️</p>
-            <p><em>The gift exchange is now complete for everyone!</em></p>
+            <!-- Celebration -->
+            <div id="celebration" class="celebration">
+                <h2>🎉 All Gift Assignments Complete! 🎉</h2>
+                <p>Everyone has their secret assignment! Time to start shopping! 🛍️</p>
+                <p style="margin-top: 15px; font-size: 1rem;">Happy December Gift Exchange! 🎄✨</p>
+            </div>
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <script>
+        // Firebase Configuration - Updated with your actual credentials
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-FPjG0-hjhG84CibNVJrIKwsD_W37fSg",
+            authDomain: "the-wainainas.firebaseapp.com",
+            databaseURL: "https://the-wainainas-default-rtdb.firebaseio.com",
+            projectId: "the-wainainas",
+            storageBucket: "the-wainainas.firebasestorage.app",
+            messagingSenderId: "604385180939",
+            appId: "1:604385180939:web:e34fdc9c3cfbe20117360e",
+            measurementId: "G-PF6D3V8L3C"
+        };
+
+        // Family members and initial game state
         const familyMembers = ['Mum', 'Dad', 'Sherry', 'Nancy', 'B', 'Pius', 'Kui', 'Turi'];
-        let selectedPlayer = null;
+        
+        let gameState = {
+            completedPlayers: [],
+            usedNumbers: [],
+            usedDevices: [],
+            secretMapping: {},
+            totalCompleted: 0
+        };
 
-        // Generate a more persistent browser fingerprint
-        function getBrowserFingerprint() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.textBaseline = 'top';
-            ctx.font = '14px Arial';
-            ctx.fillText('Browser fingerprint', 2, 2);
+        let database;
+        let gameRef;
+        let currentPlayer = null;
+        let deviceId = generateDeviceId();
+        let isFirebaseConnected = false;
+
+        // Generate unique device ID
+        function generateDeviceId() {
+            const stored = localStorage.getItem('deviceId');
+            if (stored) return stored;
             
-            const fingerprint = [
-                navigator.userAgent,
-                navigator.language,
-                screen.width + 'x' + screen.height,
-                new Date().getTimezoneOffset(),
-                canvas.toDataURL()
-            ].join('|');
-            
-            // Create a hash of the fingerprint
-            let hash = 0;
-            for (let i = 0; i < fingerprint.length; i++) {
-                const char = fingerprint.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash; // Convert to 32bit integer
-            }
-            return 'browser_' + Math.abs(hash).toString(36);
+            const id = 'device_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            localStorage.setItem('deviceId', id);
+            return id;
         }
 
-        // Load game state from localStorage
-        function loadGameState() {
-            const saved = localStorage.getItem('giftExchangeState');
-            if (saved) {
-                try {
-                    return JSON.parse(saved);
-                } catch (e) {
-                    console.error('Error parsing saved state:', e);
-                }
-            }
-            return {
-                completedPlayers: [],
-                usedNumbers: [],
-                totalCompleted: 0,
-                secretMapping: {},
-                initialized: false,
-                usedFingerprints: []
-            };
-        }
-
-        // Save game state to localStorage
-        function saveGameState(gameState) {
-            localStorage.setItem('giftExchangeState', JSON.stringify(gameState));
-        }
-
-        // Check if browser has been used
-        function hasBrowserBeenUsed(gameState, fingerprint) {
-            return gameState.usedFingerprints.includes(fingerprint);
-        }
-
-        // Mark browser as used
-        function markBrowserUsed(gameState, fingerprint) {
-            if (!gameState.usedFingerprints.includes(fingerprint)) {
-                gameState.usedFingerprints.push(fingerprint);
-            }
-        }
-
-        let gameState = loadGameState();
-        const browserFingerprint = getBrowserFingerprint();
-
-        // Initialize secret mapping on first load
-        function initializeSecretMapping() {
-            if (gameState.initialized) return;
-            
-            // Create a shuffled copy of family members
-            const shuffled = [...familyMembers];
-            
-            // Fisher-Yates shuffle algorithm
+        // Fisher-Yates shuffle algorithm
+        function shuffleArray(array) {
+            const shuffled = [...array];
             for (let i = shuffled.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
             }
-            
-            // Map numbers 1-8 to shuffled names
-            shuffled.forEach((name, index) => {
-                gameState.secretMapping[index + 1] = name;
-            });
-            
-            gameState.initialized = true;
-            saveGameState(gameState);
-            console.log('Secret mapping initialized');
+            return shuffled;
         }
 
-        function updateProgress() {
-            document.getElementById('progress').textContent = 
-                `Completed: ${gameState.totalCompleted}/8`;
+        // Initialize Firebase and setup game
+        function initializeApp() {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                database = firebase.database();
+                gameRef = database.ref('giftExchange');
+
+                isFirebaseConnected = true;
+                document.getElementById('loadingSection').innerHTML = '<div>🔄 Loading game state...</div>';
+
+                setupGameStateListener();
+                
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                showError('Failed to connect to Firebase: ' + error.message);
+            }
         }
 
-        function updateNameButtons() {
-            const nameButtons = document.querySelectorAll('.name-btn');
-            nameButtons.forEach(btn => {
-                const name = btn.dataset.name;
-                btn.classList.remove('completed', 'selected');
+        function setupGameStateListener() {
+            // Test Firebase connection first
+            gameRef.once('value', (snapshot) => {
+                const data = snapshot.val();
                 
-                if (gameState.completedPlayers.includes(name)) {
-                    btn.classList.add('completed');
-                    btn.disabled = true;
+                if (data) {
+                    gameState = data;
+                } else {
+                    // Initialize new game
+                    gameState = {
+                        completedPlayers: [],
+                        usedNumbers: [],
+                        usedDevices: [],
+                        secretMapping: createSecretMapping(),
+                        totalCompleted: 0
+                    };
+                    gameRef.set(gameState);
                 }
-                
-                if (selectedPlayer === name) {
-                    btn.classList.add('selected');
-                }
-            });
-        }
 
-        function updateNumberButtons() {
-            const numberButtons = document.querySelectorAll('.number-btn');
-            numberButtons.forEach(btn => {
-                const number = parseInt(btn.dataset.number);
-                btn.disabled = false;
-                btn.classList.remove('own');
-                
-                // Disable used numbers
-                if (gameState.usedNumbers.includes(number)) {
-                    btn.disabled = true;
-                }
-                
-                // Mark and disable player's own number
-                if (selectedPlayer) {
-                    const playerIndex = familyMembers.indexOf(selectedPlayer);
-                    if (number === playerIndex + 1) {
-                        btn.classList.add('own');
-                        btn.disabled = true;
+                showGameInterface();
+                updateUI();
+
+                // Show connection status
+                document.getElementById('connectedStatus').style.display = 'block';
+                document.getElementById('loadingSection').style.display = 'none';
+
+                // Listen for real-time updates
+                gameRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        gameState = data;
+                        updateUI();
                     }
-                }
+                });
+
+            }).catch(error => {
+                console.error('Database error:', error);
+                showError('Failed to load game data: ' + error.message + '. Please check your Firebase database rules and ensure the database is enabled.');
             });
         }
 
-        function showResult(message, isError = false) {
-            const container = document.getElementById('result-container');
-            container.innerHTML = `
-                <div class="result ${isError ? 'error' : ''}">
-                    ${message}
-                </div>
-            `;
+        function createSecretMapping() {
+            const numbers = [1, 2, 3, 4, 5, 6, 7, 8];
+            const shuffledNames = shuffleArray(familyMembers);
+            const mapping = {};
+            
+            numbers.forEach((num, index) => {
+                mapping[num] = shuffledNames[index];
+            });
+            
+            return mapping;
         }
 
-        function checkCompletion() {
-            if (gameState.totalCompleted >= 8) {
-                document.getElementById('main-content').classList.add('hidden');
-                document.getElementById('celebration').classList.remove('hidden');
+        function showGameInterface() {
+            document.getElementById('gameContainer').style.display = 'block';
+            
+            renderFamilyGrid();
+            renderNumbersGrid();
+        }
+
+        function showError(message) {
+            document.getElementById('errorSection').style.display = 'block';
+            document.getElementById('errorMessage').innerHTML = message;
+            document.getElementById('loadingSection').style.display = 'none';
+        }
+
+        function renderFamilyGrid() {
+            const grid = document.getElementById('familyGrid');
+            grid.innerHTML = '';
+
+            familyMembers.forEach(member => {
+                const button = document.createElement('div');
+                button.className = 'family-member';
+                button.textContent = member;
+                
+                if (gameState.completedPlayers.includes(member)) {
+                    button.classList.add('completed');
+                } else if (member === currentPlayer) {
+                    button.classList.add('selected');
+                }
+
+                button.addEventListener('click', () => selectPlayer(member));
+                grid.appendChild(button);
+            });
+        }
+
+        function renderNumbersGrid() {
+            const grid = document.getElementById('numbersGrid');
+            grid.innerHTML = '';
+
+            for (let i = 1; i <= 8; i++) {
+                const button = document.createElement('div');
+                button.className = 'number-btn';
+                button.textContent = i;
+
+                if (gameState.usedNumbers.includes(i)) {
+                    button.classList.add('disabled');
+                } else if (currentPlayer && familyMembers.indexOf(currentPlayer) + 1 === i) {
+                    button.classList.add('own');
+                }
+
+                button.addEventListener('click', () => selectNumber(i));
+                grid.appendChild(button);
             }
         }
 
-        function refreshState() {
-            // Reload from localStorage in case another tab/device updated it
-            const newState = loadGameState();
-            if (JSON.stringify(newState) !== JSON.stringify(gameState)) {
-                gameState = newState;
-                updateProgress();
-                updateNameButtons();
-                updateNumberButtons();
-                checkCompletion();
-                showResult('✅ Status refreshed! Latest updates loaded.', false);
-                setTimeout(() => {
-                    document.getElementById('result-container').innerHTML = '';
-                }, 3000);
-            } else {
-                showResult('ℹ️ No new updates found.', false);
-                setTimeout(() => {
-                    document.getElementById('result-container').innerHTML = '';
-                }, 2000);
-            }
-        }
-
-        function selectName(name) {
-            // Check if browser has been used
-            if (hasBrowserBeenUsed(gameState, browserFingerprint)) {
-                document.getElementById('device-notice').style.display = 'block';
-                showResult(`❌ This browser has already been used for the gift exchange. Each browser session can only be used once to prevent conflicts.`, true);
+        function selectPlayer(playerName) {
+            // Check if player already completed
+            if (gameState.completedPlayers.includes(playerName)) {
                 return;
             }
 
-            if (gameState.completedPlayers.includes(name)) {
-                showResult(`❌ ${name} has already completed their selection!`, true);
+            // Check if device already used
+            if (gameState.usedDevices.includes(deviceId)) {
+                document.getElementById('deviceBlocked').classList.add('visible');
                 return;
             }
+
+            currentPlayer = playerName;
+            document.getElementById('numbersSection').classList.add('visible');
+            document.getElementById('deviceBlocked').classList.remove('visible');
             
-            selectedPlayer = name;
-            document.getElementById('numbers-section').classList.remove('hidden');
-            updateNameButtons();
-            updateNumberButtons();
-            
-            showResult(`✅ Selected: ${name}. Now choose your secret number!`);
+            renderFamilyGrid();
+            renderNumbersGrid();
         }
 
         function selectNumber(number) {
-            if (!selectedPlayer) {
-                showResult('❌ Please select your name first!', true);
+            // Validate selection
+            if (!currentPlayer || 
+                gameState.usedNumbers.includes(number) || 
+                familyMembers.indexOf(currentPlayer) + 1 === number ||
+                gameState.usedDevices.includes(deviceId)) {
                 return;
             }
-            
-            if (gameState.usedNumbers.includes(number)) {
-                showResult('❌ This number is already taken!', true);
-                return;
-            }
-            
-            // Check if trying to select own number
-            const playerIndex = familyMembers.indexOf(selectedPlayer);
-            if (number === playerIndex + 1) {
-                showResult('❌ You cannot choose your own number!', true);
-                return;
-            }
-            
-            // Get recipient from secret mapping
+
+            // Make the selection
             const recipient = gameState.secretMapping[number];
             
             // Update game state
-            gameState.completedPlayers.push(selectedPlayer);
+            gameState.completedPlayers.push(currentPlayer);
             gameState.usedNumbers.push(number);
+            gameState.usedDevices.push(deviceId);
             gameState.totalCompleted++;
-            
-            // Mark browser as used
-            markBrowserUsed(gameState, browserFingerprint);
-            
-            // Save updated state
-            saveGameState(gameState);
-            
-            // Show result
-            showResult(`
-                🎁 <strong>${selectedPlayer}</strong>, you are giving a gift to:<br>
-                <strong style="font-size: 1.4em; color: #FFD700;">${recipient}</strong><br>
-                <em>Remember to keep it secret! 🤫</em><br><br>
-                <small>💡 Other family members can now see that ${selectedPlayer} has completed their selection.</small>
-            `);
-            
-            // Update UI
-            updateProgress();
-            updateNameButtons();
-            updateNumberButtons();
-            
-            // Reset selection
-            selectedPlayer = null;
-            document.getElementById('numbers-section').classList.add('hidden');
-            
-            // Check if game is complete
-            setTimeout(checkCompletion, 3000);
-        }
 
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize if needed
-            initializeSecretMapping();
-            
-            // Check if browser has been used
-            if (hasBrowserBeenUsed(gameState, browserFingerprint)) {
-                document.getElementById('device-notice').style.display = 'block';
-                // Disable all name buttons that aren't completed
-                document.querySelectorAll('.name-btn').forEach(btn => {
-                    if (!gameState.completedPlayers.includes(btn.dataset.name)) {
-                        btn.disabled = true;
-                    }
+            // Show assignment
+            document.getElementById('assignmentText').innerHTML = 
+                `<strong>${currentPlayer}</strong>, you're buying a gift for: <strong>${recipient}</strong>! 🎁`;
+            document.getElementById('assignmentResult').classList.add('visible');
+
+            // Update Firebase
+            if (isFirebaseConnected && gameRef) {
+                gameRef.set(gameState).catch(error => {
+                    console.error('Failed to save to Firebase:', error);
+                    showError('Failed to save selection. Please try again.');
                 });
             }
+
+            // Hide numbers section
+            document.getElementById('numbersSection').classList.remove('visible');
             
-            updateProgress();
-            updateNameButtons();
-            checkCompletion();
+            updateUI();
+        }
+
+        function updateUI() {
+            // Update progress
+            document.getElementById('progressCounter').textContent = 
+                `Completed: ${gameState.totalCompleted}/8`;
+
+            // Update completed list
+            const completedList = document.getElementById('completedList');
+            completedList.innerHTML = '';
             
-            // Name button listeners
-            document.querySelectorAll('.name-btn').forEach(btn => {
-                btn.addEventListener('click', () => selectName(btn.dataset.name));
+            gameState.completedPlayers.forEach(player => {
+                const badge = document.createElement('div');
+                badge.className = 'completed-badge';
+                badge.innerHTML = `<span>✓</span> ${player}`;
+                completedList.appendChild(badge);
             });
-            
-            // Number button listeners
-            document.querySelectorAll('.number-btn').forEach(btn => {
-                btn.addEventListener('click', () => selectNumber(parseInt(btn.dataset.number)));
-            });
-        });
+
+            // Show celebration if all complete
+            if (gameState.totalCompleted >= 8) {
+                document.getElementById('celebration').classList.add('visible');
+                document.getElementById('resetButton').style.display = 'block';
+            }
+
+            // Re-render grids
+            renderFamilyGrid();
+            renderNumbersGrid();
+        }
+
+        // Admin function to reset the game
+        function resetGame() {
+            if (confirm('Are you sure you want to reset the entire game? This will clear all selections and create new assignments.')) {
+                gameState = {
+                    completedPlayers: [],
+                    usedNumbers: [],
+                    usedDevices: [],
+                    secretMapping: createSecretMapping(),
+                    totalCompleted: 0
+                };
+
+                if (isFirebaseConnected && gameRef) {
+                    gameRef.set(gameState).then(() => {
+                        // Clear local state
+                        currentPlayer = null;
+                        document.getElementById('numbersSection').classList.remove('visible');
+                        document.getElementById('assignmentResult').classList.remove('visible');
+                        document.getElementById('celebration').classList.remove('visible');
+                        document.getElementById('deviceBlocked').classList.remove('visible');
+                        document.getElementById('resetButton').style.display = 'none';
+                        
+                        // Clear device restrictions (optional - remove if you want devices to remain blocked)
+                        // localStorage.removeItem('deviceId');
+                        
+                        updateUI();
+                    }).catch(error => {
+                        console.error('Failed to reset game:', error);
+                        alert('Failed to reset game. Please try again.');
+                    });
+                }
+            }
+        }
+
+        // Initialize the app
+        initializeApp();
+
+        // Add some debugging info for troubleshooting
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('Error: ', msg, url, lineNo, columnNo, error);
+            showError('JavaScript error occurred. Check console for details.');
+            return false;
+        };
     </script>
 </body>
 </html>
