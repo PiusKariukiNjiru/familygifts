@@ -345,6 +345,18 @@
             background: rgba(244, 67, 54, 1);
         }
 
+        .debug-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -438,15 +450,22 @@
                 <p>Everyone has their secret assignment! Time to start shopping! 🛍️</p>
                 <p style="margin-top: 15px; font-size: 1rem;">Happy December Gift Exchange! 🎄✨</p>
             </div>
+
+            <!-- Debug Information -->
+            <div id="debugInfo" class="debug-info" style="display: none;">
+                <div><strong>Debug Information:</strong></div>
+                <div id="debugContent"></div>
+            </div>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- Firebase SDK v9 modular -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getDatabase, ref, set, get, onValue, off } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js';
 
-    <script>
-        // Firebase Configuration - Updated with your actual credentials
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC-FPjG0-hjhG84CibNVJrIKwsD_W37fSg",
             authDomain: "the-wainainas.firebaseapp.com",
@@ -469,11 +488,24 @@
             totalCompleted: 0
         };
 
+        let app;
         let database;
         let gameRef;
         let currentPlayer = null;
         let deviceId = generateDeviceId();
         let isFirebaseConnected = false;
+        let gameListener = null;
+
+        // Debug logging
+        function debugLog(message) {
+            console.log('[Gift Exchange]:', message);
+            const debugContent = document.getElementById('debugContent');
+            if (debugContent) {
+                const time = new Date().toLocaleTimeString();
+                debugContent.innerHTML += `<div>[${time}] ${message}</div>`;
+                debugContent.scrollTop = debugContent.scrollHeight;
+            }
+        }
 
         // Generate unique device ID
         function generateDeviceId() {
@@ -496,31 +528,45 @@
         }
 
         // Initialize Firebase and setup game
-        function initializeApp() {
+        async function initializeApp() {
             try {
-                firebase.initializeApp(firebaseConfig);
-                database = firebase.database();
-                gameRef = database.ref('giftExchange');
+                debugLog('Initializing Firebase...');
+                
+                app = initializeApp(firebaseConfig);
+                database = getDatabase(app);
+                gameRef = ref(database, 'giftExchange');
 
-                isFirebaseConnected = true;
+                debugLog('Firebase initialized successfully');
                 document.getElementById('loadingSection').innerHTML = '<div>🔄 Loading game state...</div>';
 
-                setupGameStateListener();
+                await setupGameStateListener();
                 
             } catch (error) {
                 console.error('Firebase initialization error:', error);
+                debugLog('Firebase initialization failed: ' + error.message);
                 showError('Failed to connect to Firebase: ' + error.message);
             }
         }
 
-        function setupGameStateListener() {
-            // Test Firebase connection first
-            gameRef.once('value', (snapshot) => {
+        async function setupGameStateListener() {
+            try {
+                debugLog('Setting up game state listener...');
+                
+                // Test Firebase connection first
+                const snapshot = await get(gameRef);
+                debugLog('Database connection test successful');
+                
                 const data = snapshot.val();
                 
-                if (data) {
+                if (data && data.secretMapping) {
+                    debugLog('Existing game data found');
                     gameState = data;
+                    // Ensure arrays exist
+                    gameState.completedPlayers = gameState.completedPlayers || [];
+                    gameState.usedNumbers = gameState.usedNumbers || [];
+                    gameState.usedDevices = gameState.usedDevices || [];
                 } else {
+                    debugLog('Initializing new game');
                     // Initialize new game
                     gameState = {
                         completedPlayers: [],
@@ -529,29 +575,41 @@
                         secretMapping: createSecretMapping(),
                         totalCompleted: 0
                     };
-                    gameRef.set(gameState);
+                    await set(gameRef, gameState);
+                    debugLog('New game initialized in database');
                 }
 
+                isFirebaseConnected = true;
                 showGameInterface();
                 updateUI();
 
                 // Show connection status
                 document.getElementById('connectedStatus').style.display = 'block';
                 document.getElementById('loadingSection').style.display = 'none';
+                debugLog('Game interface shown');
 
                 // Listen for real-time updates
-                gameRef.on('value', (snapshot) => {
+                gameListener = onValue(gameRef, (snapshot) => {
+                    debugLog('Real-time update received');
                     const data = snapshot.val();
                     if (data) {
                         gameState = data;
+                        // Ensure arrays exist
+                        gameState.completedPlayers = gameState.completedPlayers || [];
+                        gameState.usedNumbers = gameState.usedNumbers || [];
+                        gameState.usedDevices = gameState.usedDevices || [];
                         updateUI();
                     }
+                }, (error) => {
+                    console.error('Database listener error:', error);
+                    debugLog('Database listener error: ' + error.message);
                 });
 
-            }).catch(error => {
-                console.error('Database error:', error);
+            } catch (error) {
+                console.error('Database setup error:', error);
+                debugLog('Database setup failed: ' + error.message);
                 showError('Failed to load game data: ' + error.message + '. Please check your Firebase database rules and ensure the database is enabled.');
-            });
+            }
         }
 
         function createSecretMapping() {
@@ -563,6 +621,7 @@
                 mapping[num] = shuffledNames[index];
             });
             
+            debugLog('Secret mapping created: ' + JSON.stringify(mapping));
             return mapping;
         }
 
@@ -571,12 +630,16 @@
             
             renderFamilyGrid();
             renderNumbersGrid();
+            
+            // Show debug info for troubleshooting (remove in production)
+            document.getElementById('debugInfo').style.display = 'block';
         }
 
         function showError(message) {
             document.getElementById('errorSection').style.display = 'block';
             document.getElementById('errorMessage').innerHTML = message;
             document.getElementById('loadingSection').style.display = 'none';
+            debugLog('Error shown: ' + message);
         }
 
         function renderFamilyGrid() {
@@ -588,7 +651,7 @@
                 button.className = 'family-member';
                 button.textContent = member;
                 
-                if (gameState.completedPlayers.includes(member)) {
+                if (gameState.completedPlayers && gameState.completedPlayers.includes(member)) {
                     button.classList.add('completed');
                 } else if (member === currentPlayer) {
                     button.classList.add('selected');
@@ -608,7 +671,7 @@
                 button.className = 'number-btn';
                 button.textContent = i;
 
-                if (gameState.usedNumbers.includes(i)) {
+                if (gameState.usedNumbers && gameState.usedNumbers.includes(i)) {
                     button.classList.add('disabled');
                 } else if (currentPlayer && familyMembers.indexOf(currentPlayer) + 1 === i) {
                     button.classList.add('own');
@@ -620,13 +683,17 @@
         }
 
         function selectPlayer(playerName) {
+            debugLog('Player selected: ' + playerName);
+            
             // Check if player already completed
-            if (gameState.completedPlayers.includes(playerName)) {
+            if (gameState.completedPlayers && gameState.completedPlayers.includes(playerName)) {
+                debugLog('Player already completed');
                 return;
             }
 
             // Check if device already used
-            if (gameState.usedDevices.includes(deviceId)) {
+            if (gameState.usedDevices && gameState.usedDevices.includes(deviceId)) {
+                debugLog('Device already used');
                 document.getElementById('deviceBlocked').classList.add('visible');
                 return;
             }
@@ -639,23 +706,31 @@
             renderNumbersGrid();
         }
 
-        function selectNumber(number) {
+        async function selectNumber(number) {
+            debugLog('Number selected: ' + number);
+            
             // Validate selection
             if (!currentPlayer || 
-                gameState.usedNumbers.includes(number) || 
+                (gameState.usedNumbers && gameState.usedNumbers.includes(number)) || 
                 familyMembers.indexOf(currentPlayer) + 1 === number ||
-                gameState.usedDevices.includes(deviceId)) {
+                (gameState.usedDevices && gameState.usedDevices.includes(deviceId))) {
+                debugLog('Invalid selection');
                 return;
             }
 
             // Make the selection
             const recipient = gameState.secretMapping[number];
+            debugLog('Assignment: ' + currentPlayer + ' -> ' + recipient);
             
             // Update game state
+            gameState.completedPlayers = gameState.completedPlayers || [];
+            gameState.usedNumbers = gameState.usedNumbers || [];
+            gameState.usedDevices = gameState.usedDevices || [];
+            
             gameState.completedPlayers.push(currentPlayer);
             gameState.usedNumbers.push(number);
             gameState.usedDevices.push(deviceId);
-            gameState.totalCompleted++;
+            gameState.totalCompleted = gameState.completedPlayers.length;
 
             // Show assignment
             document.getElementById('assignmentText').innerHTML = 
@@ -663,23 +738,24 @@
             document.getElementById('assignmentResult').classList.add('visible');
 
             // Update Firebase with proper error handling
-            if (isFirebaseConnected && gameRef) {
-                gameRef.set(gameState)
-                    .then(() => {
-                        console.log('Selection saved successfully');
-                    })
-                    .catch(error => {
-                        console.error('Failed to save to Firebase:', error);
-                        // Rollback local changes if save failed
-                        gameState.completedPlayers.pop();
-                        gameState.usedNumbers.pop();
-                        gameState.usedDevices.pop();
-                        gameState.totalCompleted--;
-                        
-                        showError('Failed to save your selection. Please check your internet connection and try again.');
-                        document.getElementById('assignmentResult').classList.remove('visible');
-                        return;
-                    });
+            try {
+                if (isFirebaseConnected && gameRef) {
+                    await set(gameRef, gameState);
+                    debugLog('Selection saved successfully');
+                }
+            } catch (error) {
+                console.error('Failed to save to Firebase:', error);
+                debugLog('Failed to save: ' + error.message);
+                
+                // Rollback local changes if save failed
+                gameState.completedPlayers.pop();
+                gameState.usedNumbers.pop();
+                gameState.usedDevices.pop();
+                gameState.totalCompleted--;
+                
+                showError('Failed to save your selection. Please check your internet connection and try again.');
+                document.getElementById('assignmentResult').classList.remove('visible');
+                return;
             }
 
             // Hide numbers section
@@ -690,22 +766,25 @@
 
         function updateUI() {
             // Update progress
+            const totalCompleted = gameState.totalCompleted || 0;
             document.getElementById('progressCounter').textContent = 
-                `Completed: ${gameState.totalCompleted}/8`;
+                `Completed: ${totalCompleted}/8`;
 
             // Update completed list
             const completedList = document.getElementById('completedList');
             completedList.innerHTML = '';
             
-            gameState.completedPlayers.forEach(player => {
-                const badge = document.createElement('div');
-                badge.className = 'completed-badge';
-                badge.innerHTML = `<span>✓</span> ${player}`;
-                completedList.appendChild(badge);
-            });
+            if (gameState.completedPlayers) {
+                gameState.completedPlayers.forEach(player => {
+                    const badge = document.createElement('div');
+                    badge.className = 'completed-badge';
+                    badge.innerHTML = `<span>✓</span> ${player}`;
+                    completedList.appendChild(badge);
+                });
+            }
 
             // Show celebration if all complete
-            if (gameState.totalCompleted >= 8) {
+            if (totalCompleted >= 8) {
                 document.getElementById('celebration').classList.add('visible');
                 document.getElementById('resetButton').style.display = 'block';
             }
@@ -716,8 +795,10 @@
         }
 
         // Admin function to reset the game
-        function resetGame() {
+        window.resetGame = async function() {
             if (confirm('Are you sure you want to reset the entire game? This will clear all selections and create new assignments.')) {
+                debugLog('Resetting game...');
+                
                 gameState = {
                     completedPlayers: [],
                     usedNumbers: [],
@@ -726,8 +807,11 @@
                     totalCompleted: 0
                 };
 
-                if (isFirebaseConnected && gameRef) {
-                    gameRef.set(gameState).then(() => {
+                try {
+                    if (isFirebaseConnected && gameRef) {
+                        await set(gameRef, gameState);
+                        debugLog('Game reset successfully');
+                        
                         // Clear local state
                         currentPlayer = null;
                         document.getElementById('numbersSection').classList.remove('visible');
@@ -736,27 +820,40 @@
                         document.getElementById('deviceBlocked').classList.remove('visible');
                         document.getElementById('resetButton').style.display = 'none';
                         
-                        // Clear device restrictions (optional - remove if you want devices to remain blocked)
-                        // localStorage.removeItem('deviceId');
-                        
                         updateUI();
-                    }).catch(error => {
-                        console.error('Failed to reset game:', error);
-                        alert('Failed to reset game. Please try again.');
-                    });
+                    }
+                } catch (error) {
+                    console.error('Failed to reset game:', error);
+                    debugLog('Failed to reset: ' + error.message);
+                    alert('Failed to reset game. Please try again.');
                 }
             }
-        }
+        };
+
+        // Clean up listener on page unload
+        window.addEventListener('beforeunload', () => {
+            if (gameListener) {
+                off(gameRef, 'value', gameListener);
+            }
+        });
+
+        // Error handling
+        window.addEventListener('error', (event) => {
+            debugLog('JavaScript error: ' + event.error);
+            console.error('Error: ', event.error);
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            debugLog('Unhandled promise rejection: ' + event.reason);
+            console.error('Unhandled promise rejection:', event.reason);
+        });
 
         // Initialize the app
-        initializeApp();
+        initializeApp().catch(error => {
+            console.error('App initialization failed:', error);
+            debugLog('App initialization failed: ' + error.message);
+        });
 
-        // Add some debugging info for troubleshooting
-        window.onerror = function(msg, url, lineNo, columnNo, error) {
-            console.error('Error: ', msg, url, lineNo, columnNo, error);
-            showError('JavaScript error occurred. Check console for details.');
-            return false;
-        };
     </script>
 </body>
 </html>
