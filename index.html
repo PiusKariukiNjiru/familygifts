@@ -1,859 +1,389 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎁 Secret Family Gift Exchange</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
-
-        h1 {
-            text-align: center;
-            color: white;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .subtitle {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-        }
-
-        .status-section {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .progress {
-            font-size: 1.3rem;
-            color: white;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .completed-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 15px;
-        }
-
-        .completed-badge {
-            background: rgba(34, 197, 94, 0.8);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .instructions {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            color: white;
-            line-height: 1.6;
-        }
-
-        .instructions h3 {
-            margin-bottom: 15px;
-            color: #ffeb3b;
-        }
-
-        .instructions ol {
-            margin-left: 20px;
-        }
-
-        .instructions li {
-            margin-bottom: 8px;
-        }
-
-        .privacy-notice {
-            background: rgba(156, 39, 176, 0.3);
-            padding: 15px;
-            border-radius: 10px;
-            color: white;
-            margin-bottom: 30px;
-            border-left: 4px solid #ffeb3b;
-        }
-
-        .family-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .family-member {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid transparent;
-            padding: 20px;
-            border-radius: 15px;
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            position: relative;
-        }
-
-        .family-member:hover:not(.completed):not(.selected) {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .family-member.selected {
-            background: rgba(255, 87, 34, 0.8);
-            border-color: #ff5722;
-            transform: scale(1.05);
-        }
-
-        .family-member.completed {
-            background: rgba(34, 197, 94, 0.6);
-            border-color: #22c55e;
-            cursor: default;
-        }
-
-        .family-member.completed::after {
-            content: '✓';
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #22c55e;
-            color: white;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            border: 2px solid white;
-        }
-
-        .numbers-section {
-            display: none;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-        }
-
-        .numbers-section.visible {
-            display: block;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .numbers-title {
-            color: white;
-            font-size: 1.3rem;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .numbers-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-        }
-
-        .number-btn {
-            background: rgba(76, 175, 80, 0.8);
-            border: 2px solid #4caf50;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-            padding: 20px;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .number-btn:hover:not(.disabled):not(.own) {
-            background: rgba(76, 175, 80, 1);
-            transform: scale(1.1);
-        }
-
-        .number-btn.disabled {
-            background: rgba(158, 158, 158, 0.6);
-            border-color: #9e9e9e;
-            color: #ccc;
-            cursor: not-allowed;
-        }
-
-        .number-btn.own {
-            background: rgba(255, 152, 0, 0.8);
-            border-color: #ff9800;
-            cursor: not-allowed;
-            position: relative;
-        }
-
-        .number-btn.own::after {
-            content: 'YOU';
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.7rem;
-            color: #ff9800;
-            font-weight: bold;
-        }
-
-        .assignment-result {
-            display: none;
-            background: rgba(76, 175, 80, 0.9);
-            padding: 25px;
-            border-radius: 15px;
-            text-align: center;
-            color: white;
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            animation: pulse 0.6s ease-in-out;
-        }
-
-        .assignment-result.visible {
-            display: block;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .device-blocked {
-            display: none;
-            background: rgba(244, 67, 54, 0.9);
-            padding: 25px;
-            border-radius: 15px;
-            text-align: center;
-            color: white;
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-        }
-
-        .device-blocked.visible {
-            display: block;
-        }
-
-        .celebration {
-            display: none;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7);
-            background-size: 300% 300%;
-            animation: gradient 3s ease infinite;
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            color: white;
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-        }
-
-        .celebration.visible {
-            display: block;
-        }
-
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .loading {
-            text-align: center;
-            color: white;
-            font-size: 1.1rem;
-            padding: 20px;
-        }
-
-        .error {
-            background: rgba(244, 67, 54, 0.8);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .connected-status {
-            background: rgba(76, 175, 80, 0.8);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .reset-button {
-            background: rgba(244, 67, 54, 0.8);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            margin-top: 15px;
-            transition: background 0.3s ease;
-        }
-
-        .reset-button:hover {
-            background: rgba(244, 67, 54, 1);
-        }
-
-        .debug-info {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-family: monospace;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.8);
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .numbers-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .family-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎁 Secret Family Gift Exchange</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 20px;
+    }
+    .loading, .error, .connected-status {
+      text-align: center;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    .loading { background: #eaf4ff; color: #0056b3; }
+    .error { background: #ffeaea; color: #c00; }
+    .connected-status { background: #eaffea; color: #006600; }
+    .status-section {
+      margin-bottom: 15px;
+    }
+    .progress {
+      font-weight: bold;
+    }
+    .completed-list {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #444;
+    }
+    .reset-button {
+      margin-top: 10px;
+      padding: 8px 15px;
+      border: none;
+      background: #c00;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .instructions {
+      margin: 20px 0;
+      background: #f1faff;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .privacy-notice {
+      margin-bottom: 20px;
+      padding: 12px;
+      background: #fff5e6;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+    .device-blocked {
+      display: none;
+      padding: 15px;
+      background: #ffeaea;
+      border: 1px solid #c00;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .family-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .family-member {
+      padding: 12px;
+      background: #f0f0f0;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .family-member:hover {
+      background: #d0ebff;
+    }
+    .family-member.completed {
+      background: #e6ffe6;
+      cursor: not-allowed;
+    }
+    .numbers-section {
+      display: none;
+      margin-bottom: 20px;
+    }
+    .numbers-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .number-btn {
+      padding: 12px;
+      background: #f0f0f0;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .number-btn:hover {
+      background: #d0ebff;
+    }
+    .number-btn.used {
+      background: #ffeaea;
+      cursor: not-allowed;
+    }
+    .assignment-result {
+      display: none;
+      padding: 15px;
+      background: #f9f9ff;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .celebration {
+      display: none;
+      padding: 20px;
+      background: #e6ffe6;
+      border-radius: 8px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎁 Secret Family Gift Exchange 🤫</h1>
-        <p class="subtitle">December 2025 • Real-Time Synchronized</p>
+  <div class="container">
+    <h1>🎁 Secret Family Gift Exchange 🤫</h1>
+    <p class="subtitle">December 2025 • Real-Time Synchronized</p>
 
-        <div id="loadingSection" class="loading">
-            <div>🔄 Connecting to Firebase...</div>
-        </div>
-
-        <div id="errorSection" class="error" style="display: none;">
-            <div id="errorMessage"></div>
-        </div>
-
-        <div id="connectedStatus" class="connected-status" style="display: none;">
-            ✅ Connected to Firebase! Real-time sync active.
-        </div>
-
-        <div id="gameContainer" style="display: none;">
-            <!-- Status Section -->
-            <div class="status-section">
-                <div class="progress" id="progressCounter">Completed: 0/8</div>
-                <div class="completed-list" id="completedList"></div>
-                <button id="resetButton" class="reset-button" style="display: none;" onclick="resetGame()">
-                    🔄 Reset Game (Admin)
-                </button>
-            </div>
-
-            <!-- Instructions -->
-            <div class="instructions">
-                <h3>🎯 How It Works</h3>
-                <ol>
-                    <li><strong>Select Your Name:</strong> Click your name from the family grid below</li>
-                    <li><strong>Pick a Number:</strong> Choose from available numbers (1-8). Your own number is blocked!</li>
-                    <li><strong>Secret Assignment:</strong> See who you're buying a gift for (keep it secret! 🤫)</li>
-                </ol>
-            </div>
-
-            <div class="privacy-notice">
-                <strong>🔒 Privacy Guaranteed:</strong> The numbers are secretly shuffled! Only you will see your assignment. Once you choose, there's no going back!
-            </div>
-
-            <!-- Device Already Used Message -->
-            <div id="deviceBlocked" class="device-blocked">
-                <h3>🚫 Device Already Used</h3>
-                <p>This device has already been used to make a selection. Each device can only be used once to ensure fairness.</p>
-                <p>Please use a different device to make your selection.</p>
-            </div>
-
-            <!-- Family Members Grid -->
-            <div id="familyGrid" class="family-grid">
-                <!-- Family members will be populated by JavaScript -->
-            </div>
-
-            <!-- Numbers Selection -->
-            <div id="numbersSection" class="numbers-section">
-                <h3 class="numbers-title">Choose Your Secret Number:</h3>
-                <div class="numbers-grid" id="numbersGrid">
-                    <!-- Numbers will be populated by JavaScript -->
-                </div>
-            </div>
-
-            <!-- Assignment Result -->
-            <div id="assignmentResult" class="assignment-result">
-                <h3>🎯 Your Secret Assignment:</h3>
-                <p id="assignmentText"></p>
-                <p style="margin-top: 15px; font-size: 0.9rem;">Keep this secret! This message will disappear when you leave the page.</p>
-            </div>
-
-            <!-- Celebration -->
-            <div id="celebration" class="celebration">
-                <h2>🎉 All Gift Assignments Complete! 🎉</h2>
-                <p>Everyone has their secret assignment! Time to start shopping! 🛍️</p>
-                <p style="margin-top: 15px; font-size: 1rem;">Happy December Gift Exchange! 🎄✨</p>
-            </div>
-
-            <!-- Debug Information -->
-            <div id="debugInfo" class="debug-info" style="display: none;">
-                <div><strong>Debug Information:</strong></div>
-                <div id="debugContent"></div>
-            </div>
-        </div>
+    <div id="loadingSection" class="loading">
+      <div>🔄 Connecting to Firebase...</div>
     </div>
 
-    <!-- Firebase SDK v9 modular -->
-    <script type="module">
-        // Import Firebase modules
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getDatabase, ref, set, get, onValue, off } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js';
+    <div id="errorSection" class="error" style="display: none;">
+      <div id="errorMessage"></div>
+    </div>
 
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyC-FPjG0-hjhG84CibNVJrIKwsD_W37fSg",
-            authDomain: "the-wainainas.firebaseapp.com",
-            databaseURL: "https://the-wainainas-default-rtdb.firebaseio.com",
-            projectId: "the-wainainas",
-            storageBucket: "the-wainainas.firebasestorage.app",
-            messagingSenderId: "604385180939",
-            appId: "1:604385180939:web:e34fdc9c3cfbe20117360e",
-            measurementId: "G-PF6D3V8L3C"
-        };
+    <div id="connectedStatus" class="connected-status" style="display: none;">
+      ✅ Connected to Firebase! Real-time sync active.
+    </div>
 
-        // Family members and initial game state
-        const familyMembers = ['Mum', 'Dad', 'Sherry', 'Nancy', 'B', 'Pius', 'Kui', 'Turi'];
-        
-        let gameState = {
-            completedPlayers: [],
-            usedNumbers: [],
-            usedDevices: [],
-            secretMapping: {},
-            totalCompleted: 0
-        };
+    <div id="gameContainer" style="display: none;">
+      <div class="status-section">
+        <div class="progress" id="progressCounter">Completed: 0/8</div>
+        <div class="completed-list" id="completedList"></div>
+        <button id="resetButton" class="reset-button" style="display: none;" onclick="resetGame()">
+          🔄 Reset Game (Admin)
+        </button>
+      </div>
 
-        let app;
-        let database;
-        let gameRef;
-        let currentPlayer = null;
-        let deviceId = generateDeviceId();
-        let isFirebaseConnected = false;
-        let gameListener = null;
+      <div class="instructions">
+        <h3>🎯 How It Works</h3>
+        <ol>
+          <li><strong>Select Your Name:</strong> Click your name from the family grid below</li>
+          <li><strong>Pick a Number:</strong> Choose from available numbers (1-8). Your own number is blocked!</li>
+          <li><strong>Secret Assignment:</strong> See who you're buying a gift for (keep it secret! 🤫)</li>
+        </ol>
+      </div>
 
-        // Debug logging
-        function debugLog(message) {
-            console.log('[Gift Exchange]:', message);
-            const debugContent = document.getElementById('debugContent');
-            if (debugContent) {
-                const time = new Date().toLocaleTimeString();
-                debugContent.innerHTML += `<div>[${time}] ${message}</div>`;
-                debugContent.scrollTop = debugContent.scrollHeight;
-            }
-        }
+      <div class="privacy-notice">
+        <strong>🔒 Privacy Guaranteed:</strong> The numbers are secretly shuffled! Only you will see your assignment. Once you choose, there's no going back!
+      </div>
 
-        // Generate unique device ID
-        function generateDeviceId() {
-            const stored = localStorage.getItem('deviceId');
-            if (stored) return stored;
-            
-            const id = 'device_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-            localStorage.setItem('deviceId', id);
-            return id;
-        }
+      <div id="deviceBlocked" class="device-blocked">
+        <h3>🚫 Device Already Used</h3>
+        <p>This device has already been used to make a selection. Each device can only be used once to ensure fairness.</p>
+        <p>Please use a different device to make your selection.</p>
+      </div>
 
-        // Fisher-Yates shuffle algorithm
-        function shuffleArray(array) {
-            const shuffled = [...array];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            return shuffled;
-        }
+      <div id="familyGrid" class="family-grid"></div>
 
-        // Initialize Firebase and setup game
-        async function initializeApp() {
-            try {
-                debugLog('Initializing Firebase...');
-                
-                app = initializeApp(firebaseConfig);
-                database = getDatabase(app);
-                gameRef = ref(database, 'giftExchange');
+      <div id="numbersSection" class="numbers-section">
+        <h3 class="numbers-title">Choose Your Secret Number:</h3>
+        <div class="numbers-grid" id="numbersGrid"></div>
+      </div>
 
-                debugLog('Firebase initialized successfully');
-                document.getElementById('loadingSection').innerHTML = '<div>🔄 Loading game state...</div>';
+      <div id="assignmentResult" class="assignment-result">
+        <h3>🎯 Your Secret Assignment:</h3>
+        <p id="assignmentText"></p>
+        <p style="margin-top: 15px; font-size: 0.9rem;">Keep this secret! This message will disappear when you leave the page.</p>
+      </div>
 
-                await setupGameStateListener();
-                
-            } catch (error) {
-                console.error('Firebase initialization error:', error);
-                debugLog('Firebase initialization failed: ' + error.message);
-                showError('Failed to connect to Firebase: ' + error.message);
-            }
-        }
+      <div id="celebration" class="celebration">
+        <h2>🎉 All Gift Assignments Complete! 🎉</h2>
+        <p>Everyone has their secret assignment! Time to start shopping! 🛍️</p>
+        <p style="margin-top: 15px; font-size: 1rem;">Happy December Gift Exchange! 🎄✨</p>
+      </div>
+    </div>
+  </div>
 
-        async function setupGameStateListener() {
-            try {
-                debugLog('Setting up game state listener...');
-                
-                // Test Firebase connection first
-                const snapshot = await get(gameRef);
-                debugLog('Database connection test successful');
-                
-                const data = snapshot.val();
-                
-                if (data && data.secretMapping) {
-                    debugLog('Existing game data found');
-                    gameState = data;
-                    // Ensure arrays exist
-                    gameState.completedPlayers = gameState.completedPlayers || [];
-                    gameState.usedNumbers = gameState.usedNumbers || [];
-                    gameState.usedDevices = gameState.usedDevices || [];
-                } else {
-                    debugLog('Initializing new game');
-                    // Initialize new game
-                    gameState = {
-                        completedPlayers: [],
-                        usedNumbers: [],
-                        usedDevices: [],
-                        secretMapping: createSecretMapping(),
-                        totalCompleted: 0
-                    };
-                    await set(gameRef, gameState);
-                    debugLog('New game initialized in database');
-                }
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-                isFirebaseConnected = true;
-                showGameInterface();
-                updateUI();
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-FPjG0-hjhG84CibNVJrIKwsD_W37fSg",
+      authDomain: "the-wainainas.firebaseapp.com",
+      databaseURL: "https://the-wainainas-default-rtdb.firebaseio.com",
+      projectId: "the-wainainas",
+      storageBucket: "the-wainainas.firebasestorage.app",
+      messagingSenderId: "604385180939",
+      appId: "1:604385180939:web:e34fdc9c3cfbe20117360e",
+      measurementId: "G-PF6D3V8L3C"
+    };
 
-                // Show connection status
-                document.getElementById('connectedStatus').style.display = 'block';
-                document.getElementById('loadingSection').style.display = 'none';
-                debugLog('Game interface shown');
+    const familyMembers = ['Mum', 'Dad', 'Sherry', 'Nancy', 'B', 'Pius', 'Kui', 'Turi'];
+    let gameState = {};
+    let database, gameRef;
+    let currentPlayer = null;
+    let deviceId = generateDeviceId();
 
-                // Listen for real-time updates
-                gameListener = onValue(gameRef, (snapshot) => {
-                    debugLog('Real-time update received');
-                    const data = snapshot.val();
-                    if (data) {
-                        gameState = data;
-                        // Ensure arrays exist
-                        gameState.completedPlayers = gameState.completedPlayers || [];
-                        gameState.usedNumbers = gameState.usedNumbers || [];
-                        gameState.usedDevices = gameState.usedDevices || [];
-                        updateUI();
-                    }
-                }, (error) => {
-                    console.error('Database listener error:', error);
-                    debugLog('Database listener error: ' + error.message);
-                });
+    function generateDeviceId() {
+      const stored = localStorage.getItem('deviceId');
+      if (stored) return stored;
+      const id = 'device_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+      localStorage.setItem('deviceId', id);
+      return id;
+    }
 
-            } catch (error) {
-                console.error('Database setup error:', error);
-                debugLog('Database setup failed: ' + error.message);
-                showError('Failed to load game data: ' + error.message + '. Please check your Firebase database rules and ensure the database is enabled.');
-            }
-        }
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
 
-        function createSecretMapping() {
-            const numbers = [1, 2, 3, 4, 5, 6, 7, 8];
-            const shuffledNames = shuffleArray(familyMembers);
-            const mapping = {};
-            
-            numbers.forEach((num, index) => {
-                mapping[num] = shuffledNames[index];
-            });
-            
-            debugLog('Secret mapping created: ' + JSON.stringify(mapping));
-            return mapping;
-        }
+    function createSecretMapping() {
+      const numbers = [1,2,3,4,5,6,7,8];
+      const shuffled = shuffleArray(familyMembers);
+      const map = {};
+      numbers.forEach((n,i)=> map[n] = shuffled[i]);
+      return map;
+    }
 
-        function showGameInterface() {
-            document.getElementById('gameContainer').style.display = 'block';
-            
-            renderFamilyGrid();
-            renderNumbersGrid();
-            
-            // Show debug info for troubleshooting (remove in production)
-            document.getElementById('debugInfo').style.display = 'block';
-        }
+    function initializeApp() {
+      firebase.initializeApp(firebaseConfig);
+      database = firebase.database();
+      gameRef = database.ref('giftExchange');
+      setupGameStateListener();
+    }
 
-        function showError(message) {
-            document.getElementById('errorSection').style.display = 'block';
-            document.getElementById('errorMessage').innerHTML = message;
-            document.getElementById('loadingSection').style.display = 'none';
-            debugLog('Error shown: ' + message);
-        }
+    function setupGameStateListener() {
+      const defaultState = {
+        completedPlayers: [],
+        usedNumbers: [],
+        usedDevices: [],
+        secretMapping: createSecretMapping(),
+        totalCompleted: 0
+      };
 
-        function renderFamilyGrid() {
-            const grid = document.getElementById('familyGrid');
-            grid.innerHTML = '';
+      gameRef.once('value').then(snapshot => {
+        const data = snapshot.val();
+        gameState = data ? { ...defaultState, ...data } : defaultState;
+        if (!data) gameRef.set(gameState);
 
-            familyMembers.forEach(member => {
-                const button = document.createElement('div');
-                button.className = 'family-member';
-                button.textContent = member;
-                
-                if (gameState.completedPlayers && gameState.completedPlayers.includes(member)) {
-                    button.classList.add('completed');
-                } else if (member === currentPlayer) {
-                    button.classList.add('selected');
-                }
+        showGameInterface();
+        updateUI();
+        document.getElementById('connectedStatus').style.display = 'block';
+        document.getElementById('loadingSection').style.display = 'none';
 
-                button.addEventListener('click', () => selectPlayer(member));
-                grid.appendChild(button);
-            });
-        }
-
-        function renderNumbersGrid() {
-            const grid = document.getElementById('numbersGrid');
-            grid.innerHTML = '';
-
-            for (let i = 1; i <= 8; i++) {
-                const button = document.createElement('div');
-                button.className = 'number-btn';
-                button.textContent = i;
-
-                if (gameState.usedNumbers && gameState.usedNumbers.includes(i)) {
-                    button.classList.add('disabled');
-                } else if (currentPlayer && familyMembers.indexOf(currentPlayer) + 1 === i) {
-                    button.classList.add('own');
-                }
-
-                button.addEventListener('click', () => selectNumber(i));
-                grid.appendChild(button);
-            }
-        }
-
-        function selectPlayer(playerName) {
-            debugLog('Player selected: ' + playerName);
-            
-            // Check if player already completed
-            if (gameState.completedPlayers && gameState.completedPlayers.includes(playerName)) {
-                debugLog('Player already completed');
-                return;
-            }
-
-            // Check if device already used
-            if (gameState.usedDevices && gameState.usedDevices.includes(deviceId)) {
-                debugLog('Device already used');
-                document.getElementById('deviceBlocked').classList.add('visible');
-                return;
-            }
-
-            currentPlayer = playerName;
-            document.getElementById('numbersSection').classList.add('visible');
-            document.getElementById('deviceBlocked').classList.remove('visible');
-            
-            renderFamilyGrid();
-            renderNumbersGrid();
-        }
-
-        async function selectNumber(number) {
-            debugLog('Number selected: ' + number);
-            
-            // Validate selection
-            if (!currentPlayer || 
-                (gameState.usedNumbers && gameState.usedNumbers.includes(number)) || 
-                familyMembers.indexOf(currentPlayer) + 1 === number ||
-                (gameState.usedDevices && gameState.usedDevices.includes(deviceId))) {
-                debugLog('Invalid selection');
-                return;
-            }
-
-            // Make the selection
-            const recipient = gameState.secretMapping[number];
-            debugLog('Assignment: ' + currentPlayer + ' -> ' + recipient);
-            
-            // Update game state
-            gameState.completedPlayers = gameState.completedPlayers || [];
-            gameState.usedNumbers = gameState.usedNumbers || [];
-            gameState.usedDevices = gameState.usedDevices || [];
-            
-            gameState.completedPlayers.push(currentPlayer);
-            gameState.usedNumbers.push(number);
-            gameState.usedDevices.push(deviceId);
-            gameState.totalCompleted = gameState.completedPlayers.length;
-
-            // Show assignment
-            document.getElementById('assignmentText').innerHTML = 
-                `<strong>${currentPlayer}</strong>, you're buying a gift for: <strong>${recipient}</strong>! 🎁`;
-            document.getElementById('assignmentResult').classList.add('visible');
-
-            // Update Firebase with proper error handling
-            try {
-                if (isFirebaseConnected && gameRef) {
-                    await set(gameRef, gameState);
-                    debugLog('Selection saved successfully');
-                }
-            } catch (error) {
-                console.error('Failed to save to Firebase:', error);
-                debugLog('Failed to save: ' + error.message);
-                
-                // Rollback local changes if save failed
-                gameState.completedPlayers.pop();
-                gameState.usedNumbers.pop();
-                gameState.usedDevices.pop();
-                gameState.totalCompleted--;
-                
-                showError('Failed to save your selection. Please check your internet connection and try again.');
-                document.getElementById('assignmentResult').classList.remove('visible');
-                return;
-            }
-
-            // Hide numbers section
-            document.getElementById('numbersSection').classList.remove('visible');
-            
+        gameRef.on('value', snap => {
+          const updated = snap.val();
+          if (updated) {
+            gameState = { ...defaultState, ...updated };
             updateUI();
+          }
+        });
+      }).catch(err => {
+        showError('DB error: ' + err.message);
+      });
+    }
+
+    function renderFamilyGrid() {
+      const grid = document.getElementById('familyGrid');
+      grid.innerHTML = '';
+      familyMembers.forEach(name => {
+        const div = document.createElement('div');
+        div.className = 'family-member';
+        if (Array.isArray(gameState.completedPlayers) && gameState.completedPlayers.includes(name)) {
+          div.classList.add('completed');
         }
+        div.innerText = name;
+        div.onclick = ()=>selectPlayer(name);
+        grid.appendChild(div);
+      });
+    }
 
-        function updateUI() {
-            // Update progress
-            const totalCompleted = gameState.totalCompleted || 0;
-            document.getElementById('progressCounter').textContent = 
-                `Completed: ${totalCompleted}/8`;
-
-            // Update completed list
-            const completedList = document.getElementById('completedList');
-            completedList.innerHTML = '';
-            
-            if (gameState.completedPlayers) {
-                gameState.completedPlayers.forEach(player => {
-                    const badge = document.createElement('div');
-                    badge.className = 'completed-badge';
-                    badge.innerHTML = `<span>✓</span> ${player}`;
-                    completedList.appendChild(badge);
-                });
-            }
-
-            // Show celebration if all complete
-            if (totalCompleted >= 8) {
-                document.getElementById('celebration').classList.add('visible');
-                document.getElementById('resetButton').style.display = 'block';
-            }
-
-            // Re-render grids
-            renderFamilyGrid();
-            renderNumbersGrid();
+    function renderNumbersGrid() {
+      const grid = document.getElementById('numbersGrid');
+      grid.innerHTML = '';
+      for (let n=1;n<=8;n++) {
+        const div = document.createElement('div');
+        div.className = 'number-btn';
+        if (Array.isArray(gameState.usedNumbers) && gameState.usedNumbers.includes(n)) {
+          div.classList.add('used');
         }
+        div.innerText = n;
+        div.onclick = ()=>selectNumber(n);
+        grid.appendChild(div);
+      }
+    }
 
-        // Admin function to reset the game
-        window.resetGame = async function() {
-            if (confirm('Are you sure you want to reset the entire game? This will clear all selections and create new assignments.')) {
-                debugLog('Resetting game...');
-                
-                gameState = {
-                    completedPlayers: [],
-                    usedNumbers: [],
-                    usedDevices: [],
-                    secretMapping: createSecretMapping(),
-                    totalCompleted: 0
-                };
+    function selectPlayer(name) {
+      if (Array.isArray(gameState.completedPlayers) && gameState.completedPlayers.includes(name)) return;
+      if (Array.isArray(gameState.usedDevices) && gameState.usedDevices.includes(deviceId)) {
+        document.getElementById('deviceBlocked').style.display='block';
+        return;
+      }
+      currentPlayer = name;
+      document.getElementById('numbersSection').style.display='block';
+      renderNumbersGrid();
+    }
 
-                try {
-                    if (isFirebaseConnected && gameRef) {
-                        await set(gameRef, gameState);
-                        debugLog('Game reset successfully');
-                        
-                        // Clear local state
-                        currentPlayer = null;
-                        document.getElementById('numbersSection').classList.remove('visible');
-                        document.getElementById('assignmentResult').classList.remove('visible');
-                        document.getElementById('celebration').classList.remove('visible');
-                        document.getElementById('deviceBlocked').classList.remove('visible');
-                        document.getElementById('resetButton').style.display = 'none';
-                        
-                        updateUI();
-                    }
-                } catch (error) {
-                    console.error('Failed to reset game:', error);
-                    debugLog('Failed to reset: ' + error.message);
-                    alert('Failed to reset game. Please try again.');
-                }
-            }
-        };
+    function selectNumber(n) {
+      if (!currentPlayer) return;
+      if (Array.isArray(gameState.usedNumbers) && gameState.usedNumbers.includes(n)) return;
+      if (gameState.secretMapping[n] === currentPlayer) {
+        alert("❌ You cannot pick your own number!");
+        return;
+      }
+      gameState.usedNumbers.push(n);
+      gameState.completedPlayers.push(currentPlayer);
+      gameState.usedDevices.push(deviceId);
+      gameState.totalCompleted++;
+      gameRef.set(gameState);
 
-        // Clean up listener on page unload
-        window.addEventListener('beforeunload', () => {
-            if (gameListener) {
-                off(gameRef, 'value', gameListener);
-            }
-        });
+      document.getElementById('assignmentText').innerText = currentPlayer + ', you will buy a gift for: ' + gameState.secretMapping[n];
+      document.getElementById('assignmentResult').style.display='block';
+      document.getElementById('numbersSection').style.display='none';
+    }
 
-        // Error handling
-        window.addEventListener('error', (event) => {
-            debugLog('JavaScript error: ' + event.error);
-            console.error('Error: ', event.error);
-        });
+    function updateUI() {
+      renderFamilyGrid();
+      if (gameState.totalCompleted >= 8) {
+        document.getElementById('celebration').style.display='block';
+      }
+      document.getElementById('progressCounter').innerText = 'Completed: ' + gameState.totalCompleted + '/8';
+      document.getElementById('completedList').innerText = 'Done: ' + (gameState.completedPlayers || []).join(', ');
+    }
 
-        window.addEventListener('unhandledrejection', (event) => {
-            debugLog('Unhandled promise rejection: ' + event.reason);
-            console.error('Unhandled promise rejection:', event.reason);
-        });
+    function resetGame() {
+      gameState = {
+        completedPlayers: [],
+        usedNumbers: [],
+        usedDevices: [],
+        secretMapping: createSecretMapping(),
+        totalCompleted: 0
+      };
+      gameRef.set(gameState);
+      updateUI();
+      document.getElementById('assignmentResult').style.display='none';
+      document.getElementById('celebration').style.display='none';
+    }
 
-        // Initialize the app
-        initializeApp().catch(error => {
-            console.error('App initialization failed:', error);
-            debugLog('App initialization failed: ' + error.message);
-        });
+    function showError(msg) {
+      document.getElementById('errorSection').style.display='block';
+      document.getElementById('errorMessage').innerText=msg;
+    }
 
-    </script>
+    function showGameInterface() {
+      document.getElementById('gameContainer').style.display='block';
+    }
+
+    initializeApp();
+  </script>
 </body>
 </html>
