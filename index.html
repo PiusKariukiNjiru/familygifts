@@ -86,6 +86,17 @@
             font-weight: bold;
         }
 
+        .device-notice {
+            background: rgba(244, 67, 54, 0.2);
+            border: 2px solid rgba(244, 67, 54, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+
         .section {
             margin-bottom: 30px;
         }
@@ -115,6 +126,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
         }
 
         .btn:hover:not(:disabled) {
@@ -138,6 +150,30 @@
 
         .name-btn.completed {
             background: linear-gradient(45deg, #2196F3, #1976D2);
+            position: relative;
+        }
+
+        .name-btn.completed::after {
+            content: '✓';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #4CAF50;
+            color: white;
+            font-size: 1.2rem;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+
+        .name-btn:disabled {
+            cursor: not-allowed;
+            transform: none !important;
         }
 
         .number-btn {
@@ -221,24 +257,7 @@
 
         .celebration p {
             font-size: 1.3rem;
-            margin-bottom: 30px;
-        }
-
-        .reset-btn {
-            background: linear-gradient(45deg, #FF5722, #D84315);
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .reset-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4);
+            margin-bottom: 20px;
         }
 
         @media (max-width: 600px) {
@@ -285,6 +304,10 @@
                 ⚠️ Numbers are randomly shuffled! You can't predict who you'll get!
             </div>
 
+            <div class="device-notice" id="device-notice" style="display: none;">
+                🚫 This device has already been used to make a selection. Each device can only be used once.
+            </div>
+
             <div class="section">
                 <h3>👨‍👩‍👧‍👦 Select Your Name</h3>
                 <div class="grid" id="names-grid">
@@ -320,26 +343,60 @@
             <h2>🎉 Everyone's Done! 🎉</h2>
             <p>All 8 family members have made their selections!</p>
             <p>Time to start shopping for your secret person! 🛍️</p>
-            <button class="reset-btn" onclick="resetGame()">🔄 Start New Exchange</button>
+            <p><em>The gift exchange is now complete for everyone!</em></p>
         </div>
     </div>
 
     <script>
-        // Game state - simulates persistent storage
-        window.gameState = window.gameState || {
-            completedPlayers: [],
-            usedNumbers: [],
-            totalCompleted: 0,
-            secretMapping: {},
-            initialized: false
-        };
-
         const familyMembers = ['Mum', 'Dad', 'Sherry', 'Nancy', 'B', 'Pius', 'Kui', 'Turi'];
         let selectedPlayer = null;
 
-        // Initialize secret mapping on first load
+        // Load game state from localStorage
+        function loadGameState() {
+            const saved = localStorage.getItem('giftExchangeState');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            return {
+                completedPlayers: [],
+                usedNumbers: [],
+                totalCompleted: 0,
+                secretMapping: {},
+                initialized: false,
+                deviceUsed: false
+            };
+        }
+
+        // Save game state to localStorage
+        function saveGameState(gameState) {
+            localStorage.setItem('giftExchangeState', JSON.stringify(gameState));
+        }
+
+        // Generate unique device ID
+        function getDeviceId() {
+            let deviceId = localStorage.getItem('deviceId');
+            if (!deviceId) {
+                deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('deviceId', deviceId);
+            }
+            return deviceId;
+        }
+
+        // Check if device has been used
+        function hasDeviceBeenUsed() {
+            return localStorage.getItem('deviceUsed') === 'true';
+        }
+
+        // Mark device as used
+        function markDeviceUsed() {
+            localStorage.setItem('deviceUsed', 'true');
+        }
+
+        let gameState = loadGameState();
+
+        // Initialize secret mapping on first load across all devices
         function initializeSecretMapping() {
-            if (window.gameState.initialized) return;
+            if (gameState.initialized) return;
             
             // Create a shuffled copy of family members
             const shuffled = [...familyMembers];
@@ -352,16 +409,17 @@
             
             // Map numbers 1-8 to shuffled names
             shuffled.forEach((name, index) => {
-                window.gameState.secretMapping[index + 1] = name;
+                gameState.secretMapping[index + 1] = name;
             });
             
-            window.gameState.initialized = true;
+            gameState.initialized = true;
+            saveGameState(gameState);
             console.log('Secret mapping initialized (hidden from users)');
         }
 
         function updateProgress() {
             document.getElementById('progress').textContent = 
-                `Completed: ${window.gameState.totalCompleted}/8`;
+                `Completed: ${gameState.totalCompleted}/8`;
         }
 
         function updateNameButtons() {
@@ -370,7 +428,7 @@
                 const name = btn.dataset.name;
                 btn.classList.remove('completed', 'selected');
                 
-                if (window.gameState.completedPlayers.includes(name)) {
+                if (gameState.completedPlayers.includes(name)) {
                     btn.classList.add('completed');
                     btn.disabled = true;
                 }
@@ -389,7 +447,7 @@
                 btn.classList.remove('own');
                 
                 // Disable used numbers
-                if (window.gameState.usedNumbers.includes(number)) {
+                if (gameState.usedNumbers.includes(number)) {
                     btn.disabled = true;
                 }
                 
@@ -414,14 +472,21 @@
         }
 
         function checkCompletion() {
-            if (window.gameState.totalCompleted >= 8) {
+            if (gameState.totalCompleted >= 8) {
                 document.getElementById('main-content').classList.add('hidden');
                 document.getElementById('celebration').classList.remove('hidden');
             }
         }
 
         function selectName(name) {
-            if (window.gameState.completedPlayers.includes(name)) {
+            // Check if device has been used
+            if (hasDeviceBeenUsed()) {
+                document.getElementById('device-notice').style.display = 'block';
+                showResult(`❌ This device has already been used for the gift exchange. Each device can only be used once.`, true);
+                return;
+            }
+
+            if (gameState.completedPlayers.includes(name)) {
                 showResult(`❌ ${name} has already completed their selection!`, true);
                 return;
             }
@@ -440,7 +505,7 @@
                 return;
             }
             
-            if (window.gameState.usedNumbers.includes(number)) {
+            if (gameState.usedNumbers.includes(number)) {
                 showResult('❌ This number is already taken!', true);
                 return;
             }
@@ -453,12 +518,18 @@
             }
             
             // Get recipient from secret mapping
-            const recipient = window.gameState.secretMapping[number];
+            const recipient = gameState.secretMapping[number];
             
             // Update game state
-            window.gameState.completedPlayers.push(selectedPlayer);
-            window.gameState.usedNumbers.push(number);
-            window.gameState.totalCompleted++;
+            gameState.completedPlayers.push(selectedPlayer);
+            gameState.usedNumbers.push(number);
+            gameState.totalCompleted++;
+            
+            // Mark device as used
+            markDeviceUsed();
+            
+            // Save updated state
+            saveGameState(gameState);
             
             // Show result
             showResult(`
@@ -480,40 +551,23 @@
             setTimeout(checkCompletion, 2000);
         }
 
-        function resetGame() {
-            window.gameState = {
-                completedPlayers: [],
-                usedNumbers: [],
-                totalCompleted: 0,
-                secretMapping: {},
-                initialized: false
-            };
-            
-            selectedPlayer = null;
-            
-            // Reinitialize
-            initializeSecretMapping();
-            updateProgress();
-            updateNameButtons();
-            
-            // Show main content, hide celebration
-            document.getElementById('main-content').classList.remove('hidden');
-            document.getElementById('celebration').classList.add('hidden');
-            document.getElementById('numbers-section').classList.add('hidden');
-            document.getElementById('result-container').innerHTML = '';
-            
-            // Re-enable name buttons
-            document.querySelectorAll('.name-btn').forEach(btn => {
-                btn.disabled = false;
-                btn.classList.remove('completed', 'selected');
-            });
-        }
-
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize if needed
             initializeSecretMapping();
+            
+            // Check if device has been used
+            if (hasDeviceBeenUsed()) {
+                document.getElementById('device-notice').style.display = 'block';
+                // Disable all name buttons
+                document.querySelectorAll('.name-btn').forEach(btn => {
+                    btn.disabled = true;
+                });
+            }
+            
             updateProgress();
             updateNameButtons();
+            checkCompletion();
             
             // Name button listeners
             document.querySelectorAll('.name-btn').forEach(btn => {
@@ -525,6 +579,18 @@
                 btn.addEventListener('click', () => selectNumber(parseInt(btn.dataset.number)));
             });
         });
+
+        // Auto-refresh state every 5 seconds to sync with other devices
+        setInterval(() => {
+            const newState = loadGameState();
+            if (JSON.stringify(newState) !== JSON.stringify(gameState)) {
+                gameState = newState;
+                updateProgress();
+                updateNameButtons();
+                updateNumberButtons();
+                checkCompletion();
+            }
+        }, 5000);
     </script>
 </body>
 </html>
