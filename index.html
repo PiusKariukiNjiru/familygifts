@@ -38,17 +38,9 @@
     .loading { background: #eaf4ff; color: #0056b3; }
     .error { background: #ffeaea; color: #c00; }
     .connected-status { background: #eaffea; color: #006600; }
-    .status-section {
-      margin-bottom: 15px;
-    }
-    .progress {
-      font-weight: bold;
-    }
-    .completed-list {
-      margin-top: 10px;
-      font-size: 0.9rem;
-      color: #444;
-    }
+    .status-section { margin-bottom: 15px; }
+    .progress { font-weight: bold; }
+    .completed-list { margin-top: 10px; font-size: 0.9rem; color: #444; }
     .reset-button {
       margin-top: 10px;
       padding: 8px 15px;
@@ -94,17 +86,9 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .family-member:hover {
-      background: #d0ebff;
-    }
-    .family-member.completed {
-      background: #e6ffe6;
-      cursor: not-allowed;
-    }
-    .numbers-section {
-      display: none;
-      margin-bottom: 20px;
-    }
+    .family-member:hover { background: #d0ebff; }
+    .family-member.completed { background: #e6ffe6; cursor: not-allowed; }
+    .numbers-section { display: none; margin-bottom: 20px; }
     .numbers-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -118,13 +102,8 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .number-btn:hover {
-      background: #d0ebff;
-    }
-    .number-btn.used {
-      background: #ffeaea;
-      cursor: not-allowed;
-    }
+    .number-btn:hover { background: #d0ebff; }
+    .number-btn.used { background: #ffeaea; cursor: not-allowed; }
     .assignment-result {
       display: none;
       padding: 15px;
@@ -228,6 +207,7 @@
     let database, gameRef;
     let currentPlayer = null;
     let deviceId = generateDeviceId();
+    let userIP = null;
 
     function generateDeviceId() {
       const stored = localStorage.getItem('deviceId');
@@ -235,6 +215,17 @@
       const id = 'device_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
       localStorage.setItem('deviceId', id);
       return id;
+    }
+
+    async function fetchUserIP() {
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        userIP = data.ip;
+      } catch (err) {
+        console.error("Failed to fetch IP:", err);
+        userIP = "unknown_" + Math.random().toString(36).substr(2,5);
+      }
     }
 
     function shuffleArray(array) {
@@ -266,6 +257,7 @@
         completedPlayers: [],
         usedNumbers: [],
         usedDevices: [],
+        usedIPs: [],   // ✅ added
         secretMapping: createSecretMapping(),
         totalCompleted: 0
       };
@@ -324,10 +316,15 @@
 
     function selectPlayer(name) {
       if (Array.isArray(gameState.completedPlayers) && gameState.completedPlayers.includes(name)) return;
-      if (Array.isArray(gameState.usedDevices) && gameState.usedDevices.includes(deviceId)) {
+
+      if (
+        (Array.isArray(gameState.usedDevices) && gameState.usedDevices.includes(deviceId)) ||
+        (Array.isArray(gameState.usedIPs) && gameState.usedIPs.includes(userIP))
+      ) {
         document.getElementById('deviceBlocked').style.display='block';
         return;
       }
+
       currentPlayer = name;
       document.getElementById('numbersSection').style.display='block';
       renderNumbersGrid();
@@ -340,13 +337,17 @@
         alert("❌ You cannot pick your own number!");
         return;
       }
+
       gameState.usedNumbers.push(n);
       gameState.completedPlayers.push(currentPlayer);
       gameState.usedDevices.push(deviceId);
+      if (userIP) gameState.usedIPs.push(userIP);  // ✅ store IP
       gameState.totalCompleted++;
+
       gameRef.set(gameState);
 
-      document.getElementById('assignmentText').innerText = currentPlayer + ', you will buy a gift for: ' + gameState.secretMapping[n];
+      document.getElementById('assignmentText').innerText =
+        currentPlayer + ', you will buy a gift for: ' + gameState.secretMapping[n];
       document.getElementById('assignmentResult').style.display='block';
       document.getElementById('numbersSection').style.display='none';
     }
@@ -365,6 +366,7 @@
         completedPlayers: [],
         usedNumbers: [],
         usedDevices: [],
+        usedIPs: [],   // ✅ reset IPs
         secretMapping: createSecretMapping(),
         totalCompleted: 0
       };
@@ -383,7 +385,10 @@
       document.getElementById('gameContainer').style.display='block';
     }
 
-    initializeApp();
+    // ✅ First fetch IP, then init Firebase
+    fetchUserIP().then(() => {
+      initializeApp();
+    });
   </script>
 </body>
 </html>
