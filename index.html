@@ -86,6 +86,17 @@
             font-weight: bold;
         }
 
+        .limitation-notice {
+            background: rgba(156, 39, 176, 0.2);
+            border: 2px solid rgba(156, 39, 176, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            color: white;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
         .device-notice {
             background: rgba(244, 67, 54, 0.2);
             border: 2px solid rgba(244, 67, 54, 0.5);
@@ -260,6 +271,23 @@
             margin-bottom: 20px;
         }
 
+        .refresh-btn {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 20px;
@@ -288,6 +316,7 @@
             <h1 class="title">🎁 Secret Gift Exchange 🤫</h1>
             <p class="subtitle">Family Christmas Gift Exchange 2024</p>
             <div class="progress" id="progress">Completed: 0/8</div>
+            <button class="refresh-btn" onclick="refreshState()">🔄 Refresh Status</button>
         </div>
 
         <div id="main-content">
@@ -304,8 +333,14 @@
                 ⚠️ Numbers are randomly shuffled! You can't predict who you'll get!
             </div>
 
+            <div class="limitation-notice">
+                📱 <strong>Important:</strong> For true cross-device sync, this app would need a backend database. 
+                Currently, completed selections are saved locally. Click "Refresh Status" to check for updates, 
+                or coordinate with family members to avoid conflicts.
+            </div>
+
             <div class="device-notice" id="device-notice" style="display: none;">
-                🚫 This device has already been used to make a selection. Each device can only be used once.
+                🚫 This browser has already been used to make a selection. Each browser session can only be used once to prevent conflicts.
             </div>
 
             <div class="section">
@@ -351,11 +386,41 @@
         const familyMembers = ['Mum', 'Dad', 'Sherry', 'Nancy', 'B', 'Pius', 'Kui', 'Turi'];
         let selectedPlayer = null;
 
+        // Generate a more persistent browser fingerprint
+        function getBrowserFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('Browser fingerprint', 2, 2);
+            
+            const fingerprint = [
+                navigator.userAgent,
+                navigator.language,
+                screen.width + 'x' + screen.height,
+                new Date().getTimezoneOffset(),
+                canvas.toDataURL()
+            ].join('|');
+            
+            // Create a hash of the fingerprint
+            let hash = 0;
+            for (let i = 0; i < fingerprint.length; i++) {
+                const char = fingerprint.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return 'browser_' + Math.abs(hash).toString(36);
+        }
+
         // Load game state from localStorage
         function loadGameState() {
             const saved = localStorage.getItem('giftExchangeState');
             if (saved) {
-                return JSON.parse(saved);
+                try {
+                    return JSON.parse(saved);
+                } catch (e) {
+                    console.error('Error parsing saved state:', e);
+                }
             }
             return {
                 completedPlayers: [],
@@ -363,7 +428,7 @@
                 totalCompleted: 0,
                 secretMapping: {},
                 initialized: false,
-                deviceUsed: false
+                usedFingerprints: []
             };
         }
 
@@ -372,29 +437,22 @@
             localStorage.setItem('giftExchangeState', JSON.stringify(gameState));
         }
 
-        // Generate unique device ID
-        function getDeviceId() {
-            let deviceId = localStorage.getItem('deviceId');
-            if (!deviceId) {
-                deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('deviceId', deviceId);
+        // Check if browser has been used
+        function hasBrowserBeenUsed(gameState, fingerprint) {
+            return gameState.usedFingerprints.includes(fingerprint);
+        }
+
+        // Mark browser as used
+        function markBrowserUsed(gameState, fingerprint) {
+            if (!gameState.usedFingerprints.includes(fingerprint)) {
+                gameState.usedFingerprints.push(fingerprint);
             }
-            return deviceId;
-        }
-
-        // Check if device has been used
-        function hasDeviceBeenUsed() {
-            return localStorage.getItem('deviceUsed') === 'true';
-        }
-
-        // Mark device as used
-        function markDeviceUsed() {
-            localStorage.setItem('deviceUsed', 'true');
         }
 
         let gameState = loadGameState();
+        const browserFingerprint = getBrowserFingerprint();
 
-        // Initialize secret mapping on first load across all devices
+        // Initialize secret mapping on first load
         function initializeSecretMapping() {
             if (gameState.initialized) return;
             
@@ -414,7 +472,7 @@
             
             gameState.initialized = true;
             saveGameState(gameState);
-            console.log('Secret mapping initialized (hidden from users)');
+            console.log('Secret mapping initialized');
         }
 
         function updateProgress() {
@@ -478,11 +536,32 @@
             }
         }
 
+        function refreshState() {
+            // Reload from localStorage in case another tab/device updated it
+            const newState = loadGameState();
+            if (JSON.stringify(newState) !== JSON.stringify(gameState)) {
+                gameState = newState;
+                updateProgress();
+                updateNameButtons();
+                updateNumberButtons();
+                checkCompletion();
+                showResult('✅ Status refreshed! Latest updates loaded.', false);
+                setTimeout(() => {
+                    document.getElementById('result-container').innerHTML = '';
+                }, 3000);
+            } else {
+                showResult('ℹ️ No new updates found.', false);
+                setTimeout(() => {
+                    document.getElementById('result-container').innerHTML = '';
+                }, 2000);
+            }
+        }
+
         function selectName(name) {
-            // Check if device has been used
-            if (hasDeviceBeenUsed()) {
+            // Check if browser has been used
+            if (hasBrowserBeenUsed(gameState, browserFingerprint)) {
                 document.getElementById('device-notice').style.display = 'block';
-                showResult(`❌ This device has already been used for the gift exchange. Each device can only be used once.`, true);
+                showResult(`❌ This browser has already been used for the gift exchange. Each browser session can only be used once to prevent conflicts.`, true);
                 return;
             }
 
@@ -525,8 +604,8 @@
             gameState.usedNumbers.push(number);
             gameState.totalCompleted++;
             
-            // Mark device as used
-            markDeviceUsed();
+            // Mark browser as used
+            markBrowserUsed(gameState, browserFingerprint);
             
             // Save updated state
             saveGameState(gameState);
@@ -535,7 +614,8 @@
             showResult(`
                 🎁 <strong>${selectedPlayer}</strong>, you are giving a gift to:<br>
                 <strong style="font-size: 1.4em; color: #FFD700;">${recipient}</strong><br>
-                <em>Remember to keep it secret! 🤫</em>
+                <em>Remember to keep it secret! 🤫</em><br><br>
+                <small>💡 Other family members can now see that ${selectedPlayer} has completed their selection.</small>
             `);
             
             // Update UI
@@ -548,7 +628,7 @@
             document.getElementById('numbers-section').classList.add('hidden');
             
             // Check if game is complete
-            setTimeout(checkCompletion, 2000);
+            setTimeout(checkCompletion, 3000);
         }
 
         // Event listeners
@@ -556,12 +636,14 @@
             // Initialize if needed
             initializeSecretMapping();
             
-            // Check if device has been used
-            if (hasDeviceBeenUsed()) {
+            // Check if browser has been used
+            if (hasBrowserBeenUsed(gameState, browserFingerprint)) {
                 document.getElementById('device-notice').style.display = 'block';
-                // Disable all name buttons
+                // Disable all name buttons that aren't completed
                 document.querySelectorAll('.name-btn').forEach(btn => {
-                    btn.disabled = true;
+                    if (!gameState.completedPlayers.includes(btn.dataset.name)) {
+                        btn.disabled = true;
+                    }
                 });
             }
             
@@ -579,18 +661,6 @@
                 btn.addEventListener('click', () => selectNumber(parseInt(btn.dataset.number)));
             });
         });
-
-        // Auto-refresh state every 5 seconds to sync with other devices
-        setInterval(() => {
-            const newState = loadGameState();
-            if (JSON.stringify(newState) !== JSON.stringify(gameState)) {
-                gameState = newState;
-                updateProgress();
-                updateNameButtons();
-                updateNumberButtons();
-                checkCompletion();
-            }
-        }, 5000);
     </script>
 </body>
 </html>
