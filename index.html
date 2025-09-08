@@ -662,12 +662,24 @@
                 `<strong>${currentPlayer}</strong>, you're buying a gift for: <strong>${recipient}</strong>! 🎁`;
             document.getElementById('assignmentResult').classList.add('visible');
 
-            // Update Firebase
+            // Update Firebase with proper error handling
             if (isFirebaseConnected && gameRef) {
-                gameRef.set(gameState).catch(error => {
-                    console.error('Failed to save to Firebase:', error);
-                    showError('Failed to save selection. Please try again.');
-                });
+                gameRef.set(gameState)
+                    .then(() => {
+                        console.log('Selection saved successfully');
+                    })
+                    .catch(error => {
+                        console.error('Failed to save to Firebase:', error);
+                        // Rollback local changes if save failed
+                        gameState.completedPlayers.pop();
+                        gameState.usedNumbers.pop();
+                        gameState.usedDevices.pop();
+                        gameState.totalCompleted--;
+                        
+                        showError('Failed to save your selection. Please check your internet connection and try again.');
+                        document.getElementById('assignmentResult').classList.remove('visible');
+                        return;
+                    });
             }
 
             // Hide numbers section
