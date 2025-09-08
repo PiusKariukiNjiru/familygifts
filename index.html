@@ -3,836 +3,527 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Family Gift Exchange</title>
+    <title>Secret Family Gift Exchange 🎁</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
-            background-size: 400% 400%;
-            animation: gradientShift 8s ease infinite;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
         }
-        
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-        
+
         .container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-            max-width: 750px;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
         }
-        
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
-            background-size: 300% 100%;
-            animation: shimmer 3s linear infinite;
-        }
-        
-        @keyframes shimmer {
-            0% { background-position: -300% 0; }
-            100% { background-position: 300% 0; }
-        }
-        
-        h1 {
+
+        .header {
             text-align: center;
-            color: #2c3e50;
-            margin-bottom: 35px;
-            font-size: clamp(1.8em, 4vw, 2.8em);
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .emoji {
-            font-size: 1.2em;
-            margin: 0 8px;
-            display: inline-block;
-            animation: bounce 2s infinite;
-        }
-        
-        .emoji:nth-child(3) {
-            animation-delay: 0.3s;
-        }
-        
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-8px); }
-            60% { transform: translateY(-4px); }
-        }
-        
-        .instructions {
-            background: rgba(102, 126, 234, 0.1);
-            border: 1px solid rgba(102, 126, 234, 0.2);
-            border-radius: 16px;
-            padding: 25px;
             margin-bottom: 30px;
-            text-align: center;
         }
-        
-        .instructions h3 {
-            color: #667eea;
-            margin-bottom: 12px;
-            font-size: 1.3em;
-            font-weight: 700;
-        }
-        
-        .instructions p {
-            color: #5a6c7d;
-            line-height: 1.7;
-            font-size: 15px;
-        }
-        
-        .privacy-notice {
-            background: rgba(255, 193, 7, 0.15);
-            border: 2px solid rgba(255, 193, 7, 0.3);
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-        
-        .privacy-notice h4 {
-            color: #f57c00;
-            margin-bottom: 8px;
-            font-size: 1.1em;
-            font-weight: 700;
-        }
-        
-        .privacy-notice p {
-            color: #e65100;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        
-        .progress {
-            text-align: center;
-            color: #667eea;
-            font-weight: 700;
-            margin: 20px 0;
-            font-size: 20px;
-            padding: 12px 20px;
-            background: rgba(102, 126, 234, 0.1);
-            border-radius: 12px;
-            display: inline-block;
-            width: 100%;
-        }
-        
-        .player-selector {
-            background: rgba(255, 235, 59, 0.15);
-            border: 2px solid rgba(253, 216, 53, 0.4);
-            border-radius: 18px;
-            padding: 25px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
-        .player-selector h3 {
-            color: #f57f17;
-            margin-bottom: 18px;
-            font-size: 1.4em;
-            font-weight: 700;
-        }
-        
-        .players-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .player-btn {
-            background: linear-gradient(135deg, #4caf50, #66bb6a);
+
+        .title {
+            font-size: 2.5rem;
             color: white;
-            border: none;
-            padding: 16px 12px;
-            border-radius: 14px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 700;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
-        .player-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.6s;
-        }
-        
-        .player-btn:hover::before {
-            left: 100%;
-        }
-        
-        .player-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px rgba(76, 175, 80, 0.4);
-        }
-        
-        .player-btn.selected {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            box-shadow: 0 8px 16px rgba(255, 107, 107, 0.4);
-        }
-        
-        .player-btn:disabled {
-            background: linear-gradient(135deg, #e0e0e0, #bdbdbd);
-            color: #757575;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .numbers-section {
-            background: rgba(76, 175, 80, 0.1);
-            border: 1px solid rgba(76, 175, 80, 0.2);
-            border-radius: 18px;
-            padding: 25px;
-            margin: 25px 0;
-            transition: all 0.3s ease;
-        }
-        
-        .numbers-section h4 {
-            color: #388e3c;
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
             margin-bottom: 20px;
-            text-align: center;
-            font-size: 1.3em;
-            font-weight: 700;
         }
-        
-        .numbers-grid {
+
+        .progress {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 10px 20px;
+            display: inline-block;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .instructions h3 {
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.6;
+        }
+
+        .privacy-notice {
+            background: rgba(255, 193, 7, 0.2);
+            border: 2px solid rgba(255, 193, 7, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h3 {
+            color: white;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+
+        .grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             margin-bottom: 20px;
         }
-        
-        .number-btn {
-            background: linear-gradient(135deg, #4caf50, #66bb6a);
-            color: white;
+
+        .btn {
+            padding: 15px;
             border: none;
-            padding: 24px;
-            border-radius: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
             cursor: pointer;
-            font-size: 24px;
-            font-weight: 900;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            min-height: 70px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .number-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255,255,255,0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.6s ease;
-        }
-        
-        .number-btn:hover::before {
-            width: 120%;
-            height: 120%;
-        }
-        
-        .number-btn:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 15px 30px rgba(76, 175, 80, 0.4);
-        }
-        
-        .number-btn:disabled {
-            background: linear-gradient(135deg, #e0e0e0, #bdbdbd);
-            color: #757575;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .number-btn.own-number {
-            background: linear-gradient(135deg, #ff9800, #f57c00);
-            cursor: not-allowed;
-            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
-        }
-        
-        .number-btn.own-number:after {
-            content: "YOU";
-            position: absolute;
-            bottom: 4px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 10px;
-            font-weight: 900;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
             letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        
-        .personal-assignment {
-            background: rgba(76, 175, 80, 0.15);
-            border: 2px solid rgba(76, 175, 80, 0.4);
-            border-radius: 18px;
-            padding: 30px;
-            margin: 25px 0;
-            text-align: center;
-            animation: assignmentReveal 0.8s ease-out;
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
-        
-        @keyframes assignmentReveal {
-            0% {
-                opacity: 0;
-                transform: scale(0.9) translateY(20px);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
         }
-        
-        .personal-assignment h3 {
-            color: #2e7d32;
-            margin-bottom: 20px;
-            font-size: 1.6em;
-            font-weight: 800;
+
+        .name-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
         }
-        
-        .personal-assignment .assignment-text {
-            font-size: 22px;
-            color: #1b5e20;
-            font-weight: 700;
-            background: rgba(255, 255, 255, 0.8);
+
+        .name-btn.selected {
+            background: linear-gradient(45deg, #FF6B35, #F7931E);
+            animation: pulse 2s infinite;
+        }
+
+        .name-btn.completed {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+        }
+
+        .number-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .number-btn:disabled {
+            background: linear-gradient(45deg, #9E9E9E, #757575);
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .number-btn.own {
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            position: relative;
+        }
+
+        .number-btn.own::after {
+            content: 'YOU';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #FF5722;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4); }
+            50% { box-shadow: 0 4px 25px rgba(255, 107, 53, 0.8); }
+            100% { box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .result {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid rgba(76, 175, 80, 0.5);
+            border-radius: 15px;
             padding: 20px;
-            border-radius: 14px;
-            margin: 20px 0;
-            border: 1px solid rgba(76, 175, 80, 0.2);
-        }
-        
-        .status-message {
             text-align: center;
-            padding: 18px;
-            border-radius: 14px;
-            margin: 18px 0;
-            font-weight: 600;
-            font-size: 15px;
-            animation: messageSlide 0.5s ease-out;
+            color: white;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            animation: slideIn 0.5s ease-out;
         }
-        
-        @keyframes messageSlide {
-            0% {
+
+        .result.error {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: rgba(244, 67, 54, 0.5);
+        }
+
+        @keyframes slideIn {
+            from {
                 opacity: 0;
-                transform: translateY(-10px);
+                transform: translateY(20px);
             }
-            100% {
+            to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
-        .success-message {
-            background: rgba(76, 175, 80, 0.2);
-            border: 2px solid rgba(76, 175, 80, 0.5);
-            color: #2e7d32;
-        }
-        
-        .error-message {
-            background: rgba(244, 67, 54, 0.2);
-            border: 2px solid rgba(244, 67, 54, 0.5);
-            color: #c62828;
-        }
-        
-        .info-message {
-            background: rgba(33, 150, 243, 0.2);
-            border: 2px solid rgba(33, 150, 243, 0.5);
-            color: #1565c0;
-        }
-        
-        .warning-message {
-            background: rgba(255, 152, 0, 0.2);
-            border: 2px solid rgba(255, 152, 0, 0.5);
-            color: #e65100;
-        }
-        
-        .reset-btn {
-            background: linear-gradient(135deg, #ff7675, #d63031);
+
+        .celebration {
+            text-align: center;
+            padding: 40px;
             color: white;
-            border: none;
-            padding: 14px 32px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 700;
-            margin: 25px auto;
-            display: block;
-            transition: all 0.3s ease;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
-        
+
+        .celebration h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #FFD700;
+        }
+
+        .celebration p {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #FF5722, #D84315);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
         .reset-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 118, 117, 0.4);
+            box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4);
         }
-        
-        .completion-section {
-            background: rgba(76, 175, 80, 0.1);
-            border: 2px solid rgba(76, 175, 80, 0.4);
-            border-radius: 20px;
-            padding: 35px;
-            text-align: center;
-            margin: 25px 0;
-            animation: celebrationPulse 2s ease-in-out infinite alternate;
-        }
-        
-        @keyframes celebrationPulse {
-            0% { box-shadow: 0 0 20px rgba(76, 175, 80, 0.3); }
-            100% { box-shadow: 0 0 40px rgba(76, 175, 80, 0.6); }
-        }
-        
-        .completion-section h2 {
-            color: #2e7d32;
-            margin-bottom: 20px;
-            font-size: 2.2em;
-            font-weight: 900;
-        }
-        
-        .names-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 12px;
-            margin: 20px 0;
-        }
-        
-        .name-status {
-            padding: 12px;
-            border-radius: 10px;
-            text-align: center;
-            font-weight: 700;
-            font-size: 14px;
-        }
-        
-        .name-status.completed {
-            background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
-            color: #2e7d32;
-            border: 1px solid rgba(76, 175, 80, 0.3);
-        }
-        
-        .name-status.pending {
-            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-            color: #e65100;
-            border: 1px solid rgba(255, 152, 0, 0.3);
-        }
-        
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
+
+        @media (max-width: 600px) {
             .container {
-                padding: 25px;
+                padding: 20px;
                 margin: 10px;
             }
             
-            .players-grid {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
             }
             
-            .numbers-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-            
-            .number-btn {
-                padding: 20px;
-                font-size: 20px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.6em;
-            }
-            
-            .instructions, .player-selector, .numbers-section {
-                padding: 18px;
+            .btn {
+                padding: 12px;
+                font-size: 0.9rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1><span class="emoji">🎁</span>Secret Gift Exchange<span class="emoji">🤫</span></h1>
-        
-        <div class="instructions">
-            <h3>How It Works</h3>
-            <p>1. Select your name below<br>
-               2. Click on any available number (you cannot choose your own)<br>
-               3. You'll see who to give a gift to - but the numbers are randomly shuffled!</p>
+        <div class="header">
+            <h1 class="title">🎁 Secret Gift Exchange 🤫</h1>
+            <p class="subtitle">Family Christmas Gift Exchange 2024</p>
+            <div class="progress" id="progress">Completed: 0/8</div>
         </div>
-        
-        <div class="privacy-notice">
-            <h4>🔒 Truly Random & Secret</h4>
-            <p>Numbers are secretly shuffled! You can't predict who you'll get until you choose!</p>
-        </div>
-        
-        <div class="progress" id="progress">
-            Completed: 0/8
-        </div>
-        
-        <div class="player-selector">
-            <h3>Who are you?</h3>
-            <div class="players-grid" id="playersGrid">
-                <!-- Players will be populated by JavaScript -->
+
+        <div id="main-content">
+            <div class="instructions">
+                <h3>📋 How It Works:</h3>
+                <ol>
+                    <li><strong>Click your name</strong> from the family members below</li>
+                    <li><strong>Choose a number</strong> from the available options (1-8)</li>
+                    <li><strong>See who you're giving to</strong> - keep it secret! 🤐</li>
+                </ol>
             </div>
-            <div id="statusMessage"></div>
-        </div>
-        
-        <div class="numbers-section" id="numbersSection">
-            <h4 id="numbersTitle">Choose a number:</h4>
-            <div class="numbers-grid" id="numbersGrid">
-                <!-- Numbers will be populated by JavaScript -->
+
+            <div class="privacy-notice">
+                ⚠️ Numbers are randomly shuffled! You can't predict who you'll get!
             </div>
+
+            <div class="section">
+                <h3>👨‍👩‍👧‍👦 Select Your Name</h3>
+                <div class="grid" id="names-grid">
+                    <button class="btn name-btn" data-name="Mum">Mum</button>
+                    <button class="btn name-btn" data-name="Dad">Dad</button>
+                    <button class="btn name-btn" data-name="Sherry">Sherry</button>
+                    <button class="btn name-btn" data-name="Nancy">Nancy</button>
+                    <button class="btn name-btn" data-name="B">B</button>
+                    <button class="btn name-btn" data-name="Pius">Pius</button>
+                    <button class="btn name-btn" data-name="Kui">Kui</button>
+                    <button class="btn name-btn" data-name="Turi">Turi</button>
+                </div>
+            </div>
+
+            <div class="section hidden" id="numbers-section">
+                <h3>🔢 Choose Your Secret Number</h3>
+                <div class="grid" id="numbers-grid">
+                    <button class="btn number-btn" data-number="1">1</button>
+                    <button class="btn number-btn" data-number="2">2</button>
+                    <button class="btn number-btn" data-number="3">3</button>
+                    <button class="btn number-btn" data-number="4">4</button>
+                    <button class="btn number-btn" data-number="5">5</button>
+                    <button class="btn number-btn" data-number="6">6</button>
+                    <button class="btn number-btn" data-number="7">7</button>
+                    <button class="btn number-btn" data-number="8">8</button>
+                </div>
+            </div>
+
+            <div id="result-container"></div>
         </div>
-        
-        <div class="personal-assignment" id="personalAssignment" style="display: none;">
-            <h3>🎯 Your Secret Assignment</h3>
-            <div class="assignment-text" id="assignmentText"></div>
-            <p style="color: #2e7d32; font-style: italic; margin-top: 15px; font-weight: 600;">
-                Remember: Keep this secret until December! 🤐<br>
-                <small style="color: #666;">This message will disappear when you leave the page.</small>
-            </p>
-        </div>
-        
-        <div class="completion-section" id="completionSection" style="display: none;">
-            <h2>🎉 All Done! 🎉</h2>
-            <p style="color: #2e7d32; margin-bottom: 25px; font-size: 18px; font-weight: 600;">
-                Everyone has made their secret selection! The gift exchange is ready for December!
-            </p>
-            <div class="names-list" id="completionList"></div>
-            <button class="reset-btn" onclick="resetGame()">
-                🔄 Admin Reset (Creates New Random Mapping)
-            </button>
+
+        <div id="celebration" class="celebration hidden">
+            <h2>🎉 Everyone's Done! 🎉</h2>
+            <p>All 8 family members have made their selections!</p>
+            <p>Time to start shopping for your secret person! 🛍️</p>
+            <button class="reset-btn" onclick="resetGame()">🔄 Start New Exchange</button>
         </div>
     </div>
 
     <script>
-        const familyNames = ['Mum', 'Dad', 'Sherry', 'Nancy', 'B', 'Pius', 'Kui', 'Turi'];
-        let selectedPlayer = null;
-        let gameState = {
+        // Game state - simulates persistent storage
+        window.gameState = window.gameState || {
             completedPlayers: [],
             usedNumbers: [],
             totalCompleted: 0,
-            secretMapping: null
+            secretMapping: {},
+            initialized: false
         };
-        let currentPlayerAssignment = null;
-        
-        // Fisher-Yates shuffle algorithm for true randomization
-        function shuffleArray(array) {
-            const shuffled = [...array];
+
+        const familyMembers = ['Mum', 'Dad', 'Sherry', 'Nancy', 'B', 'Pius', 'Kui', 'Turi'];
+        let selectedPlayer = null;
+
+        // Initialize secret mapping on first load
+        function initializeSecretMapping() {
+            if (window.gameState.initialized) return;
+            
+            // Create a shuffled copy of family members
+            const shuffled = [...familyMembers];
+            
+            // Fisher-Yates shuffle algorithm
             for (let i = shuffled.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
             }
-            return shuffled;
+            
+            // Map numbers 1-8 to shuffled names
+            shuffled.forEach((name, index) => {
+                window.gameState.secretMapping[index + 1] = name;
+            });
+            
+            window.gameState.initialized = true;
+            console.log('Secret mapping initialized (hidden from users)');
         }
-        
-        // Create secret random mapping of numbers to names
-        function createSecretMapping() {
-            const shuffledNames = shuffleArray(familyNames);
-            const mapping = {};
-            for (let i = 0; i < 8; i++) {
-                mapping[i + 1] = shuffledNames[i];
+
+        function updateProgress() {
+            document.getElementById('progress').textContent = 
+                `Completed: ${window.gameState.totalCompleted}/8`;
+        }
+
+        function updateNameButtons() {
+            const nameButtons = document.querySelectorAll('.name-btn');
+            nameButtons.forEach(btn => {
+                const name = btn.dataset.name;
+                btn.classList.remove('completed', 'selected');
+                
+                if (window.gameState.completedPlayers.includes(name)) {
+                    btn.classList.add('completed');
+                    btn.disabled = true;
+                }
+                
+                if (selectedPlayer === name) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+
+        function updateNumberButtons() {
+            const numberButtons = document.querySelectorAll('.number-btn');
+            numberButtons.forEach(btn => {
+                const number = parseInt(btn.dataset.number);
+                btn.disabled = false;
+                btn.classList.remove('own');
+                
+                // Disable used numbers
+                if (window.gameState.usedNumbers.includes(number)) {
+                    btn.disabled = true;
+                }
+                
+                // Mark and disable player's own number
+                if (selectedPlayer) {
+                    const playerIndex = familyMembers.indexOf(selectedPlayer);
+                    if (number === playerIndex + 1) {
+                        btn.classList.add('own');
+                        btn.disabled = true;
+                    }
+                }
+            });
+        }
+
+        function showResult(message, isError = false) {
+            const container = document.getElementById('result-container');
+            container.innerHTML = `
+                <div class="result ${isError ? 'error' : ''}">
+                    ${message}
+                </div>
+            `;
+        }
+
+        function checkCompletion() {
+            if (window.gameState.totalCompleted >= 8) {
+                document.getElementById('main-content').classList.add('hidden');
+                document.getElementById('celebration').classList.remove('hidden');
             }
-            return mapping;
         }
-        
-        // Load game state from memory (simulating persistent storage)
-        function loadGameState() {
-            const stored = window.gameState || {
+
+        function selectName(name) {
+            if (window.gameState.completedPlayers.includes(name)) {
+                showResult(`❌ ${name} has already completed their selection!`, true);
+                return;
+            }
+            
+            selectedPlayer = name;
+            document.getElementById('numbers-section').classList.remove('hidden');
+            updateNameButtons();
+            updateNumberButtons();
+            
+            showResult(`✅ Selected: ${name}. Now choose your secret number!`);
+        }
+
+        function selectNumber(number) {
+            if (!selectedPlayer) {
+                showResult('❌ Please select your name first!', true);
+                return;
+            }
+            
+            if (window.gameState.usedNumbers.includes(number)) {
+                showResult('❌ This number is already taken!', true);
+                return;
+            }
+            
+            // Check if trying to select own number
+            const playerIndex = familyMembers.indexOf(selectedPlayer);
+            if (number === playerIndex + 1) {
+                showResult('❌ You cannot choose your own number!', true);
+                return;
+            }
+            
+            // Get recipient from secret mapping
+            const recipient = window.gameState.secretMapping[number];
+            
+            // Update game state
+            window.gameState.completedPlayers.push(selectedPlayer);
+            window.gameState.usedNumbers.push(number);
+            window.gameState.totalCompleted++;
+            
+            // Show result
+            showResult(`
+                🎁 <strong>${selectedPlayer}</strong>, you are giving a gift to:<br>
+                <strong style="font-size: 1.4em; color: #FFD700;">${recipient}</strong><br>
+                <em>Remember to keep it secret! 🤫</em>
+            `);
+            
+            // Update UI
+            updateProgress();
+            updateNameButtons();
+            updateNumberButtons();
+            
+            // Reset selection
+            selectedPlayer = null;
+            document.getElementById('numbers-section').classList.add('hidden');
+            
+            // Check if game is complete
+            setTimeout(checkCompletion, 2000);
+        }
+
+        function resetGame() {
+            window.gameState = {
                 completedPlayers: [],
                 usedNumbers: [],
                 totalCompleted: 0,
-                secretMapping: null
+                secretMapping: {},
+                initialized: false
             };
-            gameState = stored;
             
-            // Create secret mapping if it doesn't exist (first time)
-            if (!gameState.secretMapping) {
-                gameState.secretMapping = createSecretMapping();
-                saveGameState();
-            }
-        }
-        
-        // Save game state to memory (simulating persistent storage)
-        function saveGameState() {
-            window.gameState = gameState;
-        }
-        
-        function initializeGame() {
-            loadGameState();
-            displayPlayers();
-            displayNumbers();
+            selectedPlayer = null;
+            
+            // Reinitialize
+            initializeSecretMapping();
             updateProgress();
-            checkCompletion();
-        }
-        
-        function displayPlayers() {
-            const grid = document.getElementById('playersGrid');
-            grid.innerHTML = '';
+            updateNameButtons();
             
-            familyNames.forEach((name, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'player-btn';
-                btn.textContent = name;
-                btn.onclick = () => selectPlayer(name, index + 1);
-                
-                // Disable if already completed
-                if (gameState.completedPlayers.includes(name)) {
-                    btn.disabled = true;
-                    btn.textContent = name + ' ✓';
-                }
-                
-                // Show if currently selected
-                if (selectedPlayer && selectedPlayer.name === name) {
-                    btn.classList.add('selected');
-                }
-                
-                grid.appendChild(btn);
+            // Show main content, hide celebration
+            document.getElementById('main-content').classList.remove('hidden');
+            document.getElementById('celebration').classList.add('hidden');
+            document.getElementById('numbers-section').classList.add('hidden');
+            document.getElementById('result-container').innerHTML = '';
+            
+            // Re-enable name buttons
+            document.querySelectorAll('.name-btn').forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('completed', 'selected');
             });
         }
-        
-        function selectPlayer(name, playerNumber) {
-            if (gameState.completedPlayers.includes(name)) {
-                showMessage('This person has already made their selection!', 'error');
-                return;
-            }
-            
-            selectedPlayer = { name, number: playerNumber };
-            currentPlayerAssignment = null;
-            
-            // Hide personal assignment section when switching players
-            document.getElementById('personalAssignment').style.display = 'none';
-            
-            displayPlayers();
-            displayNumbers();
-            showMessage(`Hello ${name}! Now click on a number to choose who you'll give a gift to.`, 'info');
-        }
-        
-        function displayNumbers() {
-            const grid = document.getElementById('numbersGrid');
-            const title = document.getElementById('numbersTitle');
-            const section = document.getElementById('numbersSection');
-            
-            if (!selectedPlayer) {
-                title.textContent = 'Select your name first';
-                grid.innerHTML = '<p style="text-align: center; color: #999; grid-column: 1/-1; padding: 20px;">Please select your name above first</p>';
-                return;
-            }
-            
-            if (gameState.completedPlayers.includes(selectedPlayer.name)) {
-                section.style.display = 'none';
-                showMessage('You have already made your selection!', 'warning');
-                return;
-            }
-            
-            section.style.display = 'block';
-            title.textContent = `${selectedPlayer.name}, choose a number:`;
-            grid.innerHTML = '';
-            
-            for (let i = 1; i <= 8; i++) {
-                const btn = document.createElement('button');
-                btn.className = 'number-btn';
-                btn.textContent = i;
-                btn.onclick = () => chooseNumber(i);
-                
-                // Disable if number is already used
-                if (gameState.usedNumbers.includes(i)) {
-                    btn.disabled = true;
-                }
-                
-                // Disable and mark if it's the player's own number
-                if (i === selectedPlayer.number) {
-                    btn.classList.add('own-number');
-                    btn.disabled = true;
-                }
-                
-                grid.appendChild(btn);
-            }
-        }
-        
-        function chooseNumber(number) {
-            if (!selectedPlayer) {
-                showMessage('Please select your name first!', 'error');
-                return;
-            }
-            
-            if (gameState.usedNumbers.includes(number)) {
-                showMessage('This number has already been chosen!', 'error');
-                return;
-            }
-            
-            if (number === selectedPlayer.number) {
-                showMessage('You cannot choose your own number!', 'error');
-                return;
-            }
-            
-            if (gameState.completedPlayers.includes(selectedPlayer.name)) {
-                showMessage('You have already made your selection!', 'error');
-                return;
-            }
-            
-            // Make the assignment using secret mapping
-            const recipient = gameState.secretMapping[number];
-            currentPlayerAssignment = {
-                giver: selectedPlayer.name,
-                chosenNumber: number,
-                recipient: recipient
-            };
-            
-            // Update game state (without storing assignment details)
-            gameState.completedPlayers.push(selectedPlayer.name);
-            gameState.usedNumbers.push(number);
-            gameState.totalCompleted++;
-            
-            // Save state
-            saveGameState();
-            
-            // Show personal assignment
-            showPersonalAssignment();
-            
-            // Update displays
-            displayPlayers();
-            displayNumbers();
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSecretMapping();
             updateProgress();
-            checkCompletion();
-        }
-        
-        function showPersonalAssignment() {
-            const assignmentDiv = document.getElementById('personalAssignment');
-            const assignmentText = document.getElementById('assignmentText');
+            updateNameButtons();
             
-            if (currentPlayerAssignment) {
-                assignmentText.innerHTML = `You will give a gift to: <strong>${currentPlayerAssignment.recipient}</strong>`;
-                assignmentDiv.style.display = 'block';
-                
-                // Hide numbers section
-                document.getElementById('numbersSection').style.display = 'none';
-                
-                showMessage(`🎉 Selection complete! Remember to keep this secret!`, 'success');
-            }
-        }
-        
-        function updateProgress() {
-            const progress = document.getElementById('progress');
-            progress.textContent = `Completed: ${gameState.totalCompleted}/8`;
+            // Name button listeners
+            document.querySelectorAll('.name-btn').forEach(btn => {
+                btn.addEventListener('click', () => selectName(btn.dataset.name));
+            });
             
-            // Add some visual flair to progress
-            if (gameState.totalCompleted === 8) {
-                progress.style.background = 'linear-gradient(135deg, #4caf50, #66bb6a)';
-                progress.style.color = 'white';
-            }
-        }
-        
-        function checkCompletion() {
-            const completionSection = document.getElementById('completionSection');
-            const completionList = document.getElementById('completionList');
-            
-            if (gameState.totalCompleted === 8) {
-                completionSection.style.display = 'block';
-                
-                // Show completion status for all players
-                completionList.innerHTML = '';
-                familyNames.forEach(name => {
-                    const status = document.createElement('div');
-                    status.className = 'name-status completed';
-                    status.textContent = `${name} ✓`;
-                    completionList.appendChild(status);
-                });
-                
-                // Hide other sections
-                document.getElementById('player-selector').style.display = 'none';
-                document.getElementById('numbersSection').style.display = 'none';
-                document.getElementById('personalAssignment').style.display = 'none';
-            } else {
-                completionSection.style.display = 'none';
-            }
-        }
-        
-        function showMessage(text, type) {
-            const messageDiv = document.getElementById('statusMessage');
-            messageDiv.className = `status-message ${type}-message`;
-            messageDiv.textContent = text;
-            
-            // Clear message after 6 seconds
-            setTimeout(() => {
-                messageDiv.textContent = '';
-                messageDiv.className = '';
-            }, 6000);
-        }
-        
-        function resetGame() {
-            const confirmed = confirm('⚠️ ADMIN RESET WARNING ⚠️\n\nThis will:\n• Create a completely new random mapping\n• Clear all selections\n• Cannot be undone\n\nAre you sure you want to continue?');
-            
-            if (confirmed) {
-                gameState = {
-                    completedPlayers: [],
-                    usedNumbers: [],
-                    totalCompleted: 0,
-                    secretMapping: createSecretMapping()
-                };
-                selectedPlayer = null;
-                currentPlayerAssignment = null;
-                saveGameState();
-                
-                // Reset all displays
-                document.getElementById('personalAssignment').style.display = 'none';
-                document.getElementById('completionSection').style.display = 'none';
-                document.querySelector('.player-selector').style.display = 'block';
-                
-                initializeGame();
-                showMessage('🔄 Complete reset! New random mapping created. Everyone can make fresh selections.', 'info');
-            }
-        }
-        
-        // Initialize the game when page loads
-        window.addEventListener('load', initializeGame);
-        
-        // Prevent accidental page refresh
-        window.addEventListener('beforeunload', function(e) {
-            if (currentPlayerAssignment && gameState.totalCompleted < 8) {
-                e.preventDefault();
-                e.returnValue = '';
-            }
+            // Number button listeners
+            document.querySelectorAll('.number-btn').forEach(btn => {
+                btn.addEventListener('click', () => selectNumber(parseInt(btn.dataset.number)));
+            });
         });
     </script>
 </body>
